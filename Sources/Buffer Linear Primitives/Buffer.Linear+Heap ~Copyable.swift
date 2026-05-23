@@ -1,0 +1,177 @@
+public import Storage_Primitive
+import Ordinal_Primitives_Standard_Library_Integration
+import Affine_Primitives_Standard_Library_Integration
+public import Storage_Heap_Primitives
+public import Buffer_Growth_Primitives
+
+// MARK: - Static Operations for ~Copyable Elements on Storage.Heap
+
+extension Buffer.Linear where Element: ~Copyable {
+
+    // MARK: Append
+
+    /// Writes element at slot `count`, then increments count.
+    ///
+    /// - Precondition: `header.count < header.capacity` (not full).
+    @inlinable
+    public static func append(
+        _ element: consuming Element,
+        header: inout Header,
+        storage: Storage<Element>.Heap
+    ) {
+        let slot = header.count.map(Ordinal.init)
+        storage.initialize(to: consume element, at: slot)
+
+        header.count = header.count.add.saturating(.one)
+
+        storage.initialization = header.initialization
+    }
+
+    // MARK: Remove First
+
+    /// Removes and returns element at slot 0, shifting remaining elements left.
+    ///
+    /// Uses bulk `move(range:to:)` per H3 — no element-by-element loop.
+    ///
+    /// - Precondition: `header.count > 0` (not empty).
+    @inlinable
+    public static func removeFirst(
+        header: inout Header,
+        storage: Storage<Element>.Heap
+    ) -> Element {
+        let element = storage.move(at: .zero)
+
+        if header.count > .one {
+            // Shift each remaining element one slot toward the front.
+            let shiftStart = Index<Element>.Count.one.map(Ordinal.init)
+            let shiftEnd = header.count.map(Ordinal.init)
+            storage.move(range: shiftStart..<shiftEnd, to: storage)
+        }
+
+        header.count = header.count.subtract.saturating(.one)
+
+        storage.initialization = header.initialization
+
+        return element
+    }
+
+    // MARK: Remove At
+
+    /// Removes and returns the element at the given index, shifting subsequent elements left.
+    ///
+    /// Uses `moveInitialize(from:count:)` (memmove semantics) for overlapping regions.
+    ///
+    /// - Precondition: `index < header.count` (in bounds).
+    @inlinable
+    public static func remove(
+        at index: Index<Element>,
+        header: inout Header,
+        storage: Storage<Element>.Heap
+    ) -> Element {
+        precondition(index < header.count, "Index out of bounds")
+        let element = storage.move(at: index)
+        let nextSlot = index + .one
+        let followingCount = header.count.subtract.saturating(nextSlot.map(Cardinal.init))
+        if followingCount > .zero {
+            unsafe storage.pointer(at: index)
+                .moveInitialize(
+                    from: storage.pointer(at: nextSlot),
+                    count: followingCount
+                )
+        }
+        header.count = header.count.subtract.saturating(.one)
+        storage.initialization = header.initialization
+        return element
+    }
+
+    // MARK: Replace At
+
+    /// Replaces the element at the given index, returning the old element.
+    /// Does NOT change count — the slot remains initialized.
+    @inlinable
+    public static func replace(
+        at index: Index<Element>,
+        with newElement: consuming Element,
+        storage: Storage<Element>.Heap
+    ) -> Element {
+        let old = storage.move(at: index)
+        storage.initialize(to: consume newElement, at: index)
+        return old
+    }
+
+    // MARK: Consume Back
+
+    /// Removes and returns the last element (the one at the trailing slot).
+    ///
+    /// - Precondition: `header.count > 0` (not empty).
+    @inlinable
+    public static func consumeBack(
+        header: inout Header,
+        storage: Storage<Element>.Heap
+    ) -> Element {
+        let newCount = header.count.subtract.saturating(.one)
+
+        let element = storage.move(at: newCount.map(Ordinal.init))
+
+        header.count = newCount
+
+        storage.initialization = header.initialization
+
+        return element
+    }
+
+    // MARK: Swap At
+
+    /// Swaps the elements at positions `i` and `j` in-place.
+    ///
+    /// - Precondition: Both indices must be in bounds (`< header.count`).
+    @inlinable
+    public static func swap(
+        at i: Index<Element>,
+        with j: Index<Element>,
+        storage: Storage<Element>.Heap
+    ) {
+        guard i != j else { return }
+        let ptrI = unsafe storage.pointer(at: i)
+        let ptrJ = unsafe storage.pointer(at: j)
+        let temp = unsafe ptrI.move()
+        unsafe ptrI.initialize(to: ptrJ.move())
+        unsafe ptrJ.initialize(to: temp)
+    }
+
+    // MARK: Deinitialize All
+
+    /// Deinitializes all elements tracked by the header.
+    @inlinable
+    public static func deinitializeAll(
+        header: inout Header,
+        storage: Storage<Element>.Heap
+    ) {
+        header.initialization.forEach { range in
+            storage.deinitialize(range: range)
+        }
+        header.count = .zero
+        storage.initialization = .empty
+    }
+
+    // MARK: Truncate
+
+    /// Deinitializes elements beyond `newCount`, keeping elements `0..<newCount`.
+    ///
+    /// If `newCount >= header.count`, this is a no-op.
+    ///
+    /// - Precondition: `newCount >= 0`.
+    @inlinable
+    public static func truncate(
+        to newCount: Index<Element>.Count,
+        header: inout Header,
+        storage: Storage<Element>.Heap
+    ) {
+        guard newCount < header.count else { return }
+        let start = newCount.map(Ordinal.init)
+        let end = header.count.map(Ordinal.init)
+        storage.deinitialize(range: start..<end)
+        header.count = newCount
+        storage.initialization = header.initialization
+    }
+}

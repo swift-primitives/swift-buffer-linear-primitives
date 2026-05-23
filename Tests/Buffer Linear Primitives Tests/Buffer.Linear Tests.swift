@@ -1,0 +1,325 @@
+import Buffer_Linear_Primitives
+import Buffer_Linear_Primitives_Test_Support
+import Testing
+
+@Suite("Buffer.Linear")
+struct LinearGrowableTests {
+    @Suite struct Unit {}
+    @Suite struct EdgeCase {}
+    @Suite struct Integration {}
+}
+
+// MARK: - Unit
+
+extension LinearGrowableTests.Unit {
+
+    @Test
+    func `append and removeFirst`() {
+        var buffer = Buffer<Int>.Linear(minimumCapacity: 4)
+        buffer.append(10)
+        buffer.append(20)
+        buffer.append(30)
+
+        #expect(buffer.remove.first() == 10)
+        #expect(buffer.remove.first() == 20)
+        #expect(buffer.remove.first() == 30)
+        #expect(buffer.isEmpty)
+    }
+
+    @Test
+    func `append and removeLast`() {
+        var buffer = Buffer<Int>.Linear(minimumCapacity: 4)
+        buffer.append(10)
+        buffer.append(20)
+        buffer.append(30)
+
+        #expect(buffer.remove.last() == 30)
+        #expect(buffer.remove.last() == 20)
+        #expect(buffer.remove.last() == 10)
+        #expect(buffer.isEmpty)
+    }
+
+    @Test
+    func `growth doubles capacity`() {
+        var buffer = Buffer<Int>.Linear(minimumCapacity: 2)
+        let originalCap = buffer.capacity
+
+        var i = 0
+        let needed = Int(originalCap.underlying.rawValue) + 1
+        while i < needed {
+            buffer.append(i * 10)
+            i += 1
+        }
+
+        #expect(buffer.capacity.underlying.rawValue > originalCap.underlying.rawValue)
+
+        // Verify elements survived growth
+        i = 0
+        while i < needed {
+            #expect(buffer.remove.first() == i * 10)
+            i += 1
+        }
+    }
+
+    @Test
+    func `drain removes all in front-to-back order`() {
+        var buffer: Buffer<Int>.Linear = [10, 20, 30]
+        var drained: [Int] = []
+        buffer.drain { drained.append($0) }
+        #expect(drained == [10, 20, 30])
+        #expect(buffer.isEmpty)
+    }
+
+    @Test
+    func `removeAll clears buffer`() {
+        var buffer: Buffer<Int>.Linear = [1, 2, 3]
+        buffer.remove.all()
+        #expect(buffer.isEmpty)
+    }
+
+    @Test
+    func `peekFront and peekBack (Copyable)`() {
+        let buffer: Buffer<Int>.Linear = [10, 20, 30]
+        #expect(buffer.peek.front == 10)
+        #expect(buffer.peek.back == 30)
+    }
+
+    @Test
+    func `Sequence.Protocol iteration (Copyable)`() {
+        let buffer: Buffer<Int>.Linear = [10, 20, 30]
+        var collected: [Int] = []
+        var iter = buffer.makeIterator()
+        while let value = iter.next() {
+            collected.append(value)
+        }
+        #expect(collected == [10, 20, 30])
+    }
+
+    @Test
+    func `single element`() {
+        var buffer = Buffer<Int>.Linear(minimumCapacity: 1)
+        buffer.append(42)
+        #expect(buffer.count == 1)
+        #expect(buffer.remove.last() == 42)
+        #expect(buffer.isEmpty)
+    }
+
+    @Test
+    func `reserveCapacity grows if needed`() {
+        var buffer = Buffer<Int>.Linear(minimumCapacity: 2)
+        buffer.reserveCapacity(100)
+        #expect(buffer.capacity.underlying.rawValue >= 100)
+    }
+
+    @Test
+    func `forEach visits all elements`() {
+        let buffer: Buffer<Int>.Linear = [10, 20, 30]
+        var visited: [Int] = []
+        buffer.forEach { visited.append($0) }
+        #expect(visited == [10, 20, 30])
+    }
+
+    @Test
+    func `subscript read and write`() {
+        var buffer: Buffer<Int>.Linear = [10, 20, 30]
+        #expect(buffer[0] == 10)
+        #expect(buffer[1] == 20)
+        #expect(buffer[2] == 30)
+        buffer[1] = 999
+        #expect(buffer[1] == 999)
+    }
+
+    @Test
+    func `swap exchanges two elements`() {
+        var buffer: Buffer<Int>.Linear = [10, 20, 30]
+        buffer.swap(at: 0, with: 2)
+        #expect(buffer[0] == 30)
+        #expect(buffer[2] == 10)
+    }
+
+    @Test
+    func `truncate removes trailing elements`() {
+        var buffer: Buffer<Int>.Linear = [10, 20, 30, 40, 50]
+        buffer.truncate(to: 3)
+        #expect(buffer.count == 3)
+        #expect(buffer.peek.back == 30)
+    }
+}
+
+// MARK: - Edge Cases
+
+extension LinearGrowableTests.EdgeCase {
+
+    @Test
+    func `truncate to zero empties buffer`() {
+        var buffer: Buffer<Int>.Linear = [10, 20, 30]
+        buffer.truncate(to: .zero)
+        #expect(buffer.isEmpty)
+    }
+
+    @Test
+    func `swap same index is no-op`() {
+        var buffer: Buffer<Int>.Linear = [10, 20, 30]
+        buffer.swap(at: 1, with: 1)
+        #expect(buffer[1] == 20)
+    }
+
+    @Test
+    func `empty buffer properties`() {
+        let buffer = Buffer<Int>.Linear(minimumCapacity: 4)
+        #expect(buffer.isEmpty)
+        #expect(buffer.count == 0)
+    }
+}
+
+// MARK: - Integration
+
+extension LinearGrowableTests.Integration {
+
+    @Test
+    func `drain then reuse`() {
+        var buffer: Buffer<Int>.Linear = [10, 20, 30]
+        buffer.drain { _ in }
+        #expect(buffer.isEmpty)
+        buffer.append(40)
+        #expect(buffer.peek.front == 40)
+    }
+}
+
+// MARK: - Copy-on-Write
+
+@Suite("Buffer.Linear CoW")
+struct LinearCoWTests {
+    @Suite struct Unit {}
+}
+
+extension LinearCoWTests.Unit {
+
+    @Test
+    func `copy shares elements initially`() {
+        var original: Buffer<Int>.Linear = [1, 2, 3]
+        var copy = original
+
+        var originalElements: [Int] = []
+        var copyElements: [Int] = []
+
+        original.forEach { originalElements.append($0) }
+        copy.forEach { copyElements.append($0) }
+
+        #expect(originalElements == copyElements)
+    }
+
+    @Test
+    func `append to copy does not affect original`() {
+        var original: Buffer<Int>.Linear = [1, 2, 3]
+        var copy = original
+
+        copy.append(99)
+
+        #expect(original.count == 3)
+        #expect(copy.count == 4)
+
+        #expect(original.peek.back == 3)
+        #expect(copy.peek.back == 99)
+    }
+
+    @Test
+    func `append to original does not affect copy`() {
+        var original: Buffer<Int>.Linear = [1, 2, 3]
+        var copy = original
+
+        original.append(99)
+
+        #expect(original.count == 4)
+        #expect(copy.count == 3)
+
+        #expect(original.peek.back == 99)
+        #expect(copy.peek.back == 3)
+    }
+
+    @Test
+    func `subscript set on copy does not affect original`() {
+        var original: Buffer<Int>.Linear = [10, 20, 30]
+        var copy = original
+
+        copy[1] = 999
+
+        #expect(original[1] == 20)
+        #expect(copy[1] == 999)
+    }
+
+    @Test
+    func `multiple copies are independent`() {
+        var original: Buffer<Int>.Linear = [1, 2]
+
+        var copy1 = original
+        var copy2 = original
+
+        copy1.append(100)
+        copy2.append(200)
+        original.append(300)
+
+        #expect(original.peek.back == 300)
+        #expect(copy1.peek.back == 100)
+        #expect(copy2.peek.back == 200)
+
+        #expect(original.count == 3)
+        #expect(copy1.count == 3)
+        #expect(copy2.count == 3)
+    }
+
+    @Test
+    func `removeLast on copy does not affect original`() {
+        var original: Buffer<Int>.Linear = [1, 2, 3]
+        var copy = original
+
+        let removed = copy.remove.last()
+
+        #expect(removed == 3)
+        #expect(copy.count == 2)
+        #expect(original.count == 3)
+        #expect(original.peek.back == 3)
+    }
+
+    @Test
+    func `removeFirst on copy does not affect original`() {
+        var original: Buffer<Int>.Linear = [1, 2, 3]
+        var copy = original
+
+        let consumed = copy.remove.first()
+
+        #expect(consumed == 1)
+        #expect(copy.count == 2)
+        #expect(original.count == 3)
+        #expect(original.peek.front == 1)
+    }
+
+    @Test
+    func `removeAll on copy does not affect original`() {
+        var original: Buffer<Int>.Linear = [1, 2, 3]
+        var copy = original
+
+        copy.remove.all()
+
+        #expect(copy.isEmpty)
+        #expect(original.count == 3)
+        #expect(original.peek.front == 1)
+        #expect(original.peek.back == 3)
+    }
+
+    @Test
+    func `reserveCapacity on copy does not affect original`() {
+        var original: Buffer<Int>.Linear = [1, 2, 3]
+        var copy = original
+
+        copy.reserveCapacity(1000)
+
+        #expect(copy.capacity.underlying.rawValue >= 1000)
+        #expect(original.count == 3)
+
+        // Original elements preserved
+        var elements: [Int] = []
+        original.forEach { elements.append($0) }
+        #expect(elements == [1, 2, 3])
+    }
+}
