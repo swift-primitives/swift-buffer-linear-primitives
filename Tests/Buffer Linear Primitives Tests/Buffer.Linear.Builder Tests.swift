@@ -11,6 +11,9 @@
 
 import Buffer_Linear_Primitives
 import Buffer_Linear_Primitives_Test_Support
+import Memory_Allocator_Primitive
+import Memory_Heap_Primitives
+import Storage_Contiguous_Primitives
 import Testing
 
 // MARK: - Test Suite Structure
@@ -35,7 +38,7 @@ private struct Move: ~Copyable {
 
 extension LinearBuilderTests {
     fileprivate static func collected(
-        _ buffer: consuming Buffer<Int>.Linear
+        _ buffer: consuming Buffer<Storage<Memory.Allocator<Memory.Heap>>.Contiguous<Int>>.Linear
     ) -> [Int] {
         var rest = consume buffer
         var result: [Int] = []
@@ -46,7 +49,7 @@ extension LinearBuilderTests {
     }
 
     fileprivate static func collected(
-        _ buffer: consuming Buffer<Move>.Linear
+        _ buffer: consuming Buffer<Storage<Memory.Allocator<Memory.Heap>>.Contiguous<Move>>.Linear
     ) -> [Int] {
         var rest = consume buffer
         var result: [Int] = []
@@ -64,13 +67,13 @@ extension LinearBuilderTests.Unit {
 
     @Test
     func `Single element expression`() {
-        let buffer: Buffer<Int>.Linear = Buffer<Int>.Linear { 42 }
+        let buffer: Buffer<Storage<Memory.Allocator<Memory.Heap>>.Contiguous<Int>>.Linear = Buffer<Storage<Memory.Allocator<Memory.Heap>>.Contiguous<Int>>.Linear { 42 }
         #expect(LinearBuilderTests.collected(buffer) == [42])
     }
 
     @Test
     func `Multiple element expressions`() {
-        let buffer: Buffer<Int>.Linear = Buffer<Int>.Linear {
+        let buffer: Buffer<Storage<Memory.Allocator<Memory.Heap>>.Contiguous<Int>>.Linear = Buffer<Storage<Memory.Allocator<Memory.Heap>>.Contiguous<Int>>.Linear {
             1
             2
             3
@@ -81,14 +84,14 @@ extension LinearBuilderTests.Unit {
     @Test
     func `Optional element - some`() {
         let value: Int? = 42
-        let buffer: Buffer<Int>.Linear = Buffer<Int>.Linear { value }
+        let buffer: Buffer<Storage<Memory.Allocator<Memory.Heap>>.Contiguous<Int>>.Linear = Buffer<Storage<Memory.Allocator<Memory.Heap>>.Contiguous<Int>>.Linear { value }
         #expect(LinearBuilderTests.collected(buffer) == [42])
     }
 
     @Test
     func `Optional element - none`() {
         let value: Int? = nil
-        let buffer: Buffer<Int>.Linear = Buffer<Int>.Linear { value }
+        let buffer: Buffer<Storage<Memory.Allocator<Memory.Heap>>.Contiguous<Int>>.Linear = Buffer<Storage<Memory.Allocator<Memory.Heap>>.Contiguous<Int>>.Linear { value }
         let isEmpty = buffer.isEmpty
         #expect(isEmpty)
     }
@@ -97,7 +100,7 @@ extension LinearBuilderTests.Unit {
     func `Mixed elements and optionals`() {
         let some: Int? = 2
         let none: Int? = nil
-        let buffer: Buffer<Int>.Linear = Buffer<Int>.Linear {
+        let buffer: Buffer<Storage<Memory.Allocator<Memory.Heap>>.Contiguous<Int>>.Linear = Buffer<Storage<Memory.Allocator<Memory.Heap>>.Contiguous<Int>>.Linear {
             1
             some
             none
@@ -108,7 +111,7 @@ extension LinearBuilderTests.Unit {
 
     @Test
     func `Empty block`() {
-        let buffer: Buffer<Int>.Linear = Buffer<Int>.Linear {}
+        let buffer: Buffer<Storage<Memory.Allocator<Memory.Heap>>.Contiguous<Int>>.Linear = Buffer<Storage<Memory.Allocator<Memory.Heap>>.Contiguous<Int>>.Linear {}
         let isEmpty = buffer.isEmpty
         #expect(isEmpty)
     }
@@ -121,7 +124,7 @@ extension LinearBuilderTests.Unit {
     @Test
     func `Conditional include`() {
         let include = true
-        let buffer: Buffer<Int>.Linear = Buffer<Int>.Linear {
+        let buffer: Buffer<Storage<Memory.Allocator<Memory.Heap>>.Contiguous<Int>>.Linear = Buffer<Storage<Memory.Allocator<Memory.Heap>>.Contiguous<Int>>.Linear {
             1
             if include {
                 2
@@ -134,7 +137,7 @@ extension LinearBuilderTests.Unit {
     @Test
     func `Conditional exclude`() {
         let include = false
-        let buffer: Buffer<Int>.Linear = Buffer<Int>.Linear {
+        let buffer: Buffer<Storage<Memory.Allocator<Memory.Heap>>.Contiguous<Int>>.Linear = Buffer<Storage<Memory.Allocator<Memory.Heap>>.Contiguous<Int>>.Linear {
             1
             if include {
                 2
@@ -147,7 +150,7 @@ extension LinearBuilderTests.Unit {
     @Test
     func `If-else first branch`() {
         let condition = true
-        let buffer: Buffer<Int>.Linear = Buffer<Int>.Linear {
+        let buffer: Buffer<Storage<Memory.Allocator<Memory.Heap>>.Contiguous<Int>>.Linear = Buffer<Storage<Memory.Allocator<Memory.Heap>>.Contiguous<Int>>.Linear {
             if condition {
                 1
             } else {
@@ -160,7 +163,7 @@ extension LinearBuilderTests.Unit {
     @Test
     func `If-else second branch`() {
         let condition = false
-        let buffer: Buffer<Int>.Linear = Buffer<Int>.Linear {
+        let buffer: Buffer<Storage<Memory.Allocator<Memory.Heap>>.Contiguous<Int>>.Linear = Buffer<Storage<Memory.Allocator<Memory.Heap>>.Contiguous<Int>>.Linear {
             if condition {
                 1
             } else {
@@ -172,7 +175,7 @@ extension LinearBuilderTests.Unit {
 
     @Test
     func `Limited availability passthrough`() {
-        let buffer: Buffer<Int>.Linear = Buffer<Int>.Linear {
+        let buffer: Buffer<Storage<Memory.Allocator<Memory.Heap>>.Contiguous<Int>>.Linear = Buffer<Storage<Memory.Allocator<Memory.Heap>>.Contiguous<Int>>.Linear {
             1
             if #available(macOS 26, iOS 26, *) {
                 2
@@ -192,7 +195,7 @@ extension LinearBuilderTests.EdgeCase {
         let a = true
         let b = false
         let c = true
-        let buffer: Buffer<Int>.Linear = Buffer<Int>.Linear {
+        let buffer: Buffer<Storage<Memory.Allocator<Memory.Heap>>.Contiguous<Int>>.Linear = Buffer<Storage<Memory.Allocator<Memory.Heap>>.Contiguous<Int>>.Linear {
             0
             if a {
                 1
@@ -212,7 +215,7 @@ extension LinearBuilderTests.EdgeCase {
 
     @Test
     func `Many elements`() {
-        let buffer: Buffer<Int>.Linear = Buffer<Int>.Linear {
+        let buffer: Buffer<Storage<Memory.Allocator<Memory.Heap>>.Contiguous<Int>>.Linear = Buffer<Storage<Memory.Allocator<Memory.Heap>>.Contiguous<Int>>.Linear {
             1
             2
             3
@@ -234,7 +237,7 @@ extension LinearBuilderTests.Integration {
 
     @Test
     func `Builder result is mutable`() {
-        var buffer: Buffer<Int>.Linear = Buffer<Int>.Linear {
+        var buffer: Buffer<Storage<Memory.Allocator<Memory.Heap>>.Contiguous<Int>>.Linear = Buffer<Storage<Memory.Allocator<Memory.Heap>>.Contiguous<Int>>.Linear {
             1
             2
             3
@@ -245,7 +248,7 @@ extension LinearBuilderTests.Integration {
 
     @Test
     func `Empty builder composes with append`() {
-        var buffer: Buffer<Int>.Linear = Buffer<Int>.Linear {}
+        var buffer: Buffer<Storage<Memory.Allocator<Memory.Heap>>.Contiguous<Int>>.Linear = Buffer<Storage<Memory.Allocator<Memory.Heap>>.Contiguous<Int>>.Linear {}
         let isEmpty = buffer.isEmpty
         #expect(isEmpty)
         buffer.append(1)
@@ -260,7 +263,7 @@ extension LinearBuilderTests.NonCopyable {
 
     @Test
     func `Builder with single noncopyable element`() {
-        let buffer: Buffer<Move>.Linear = Buffer<Move>.Linear {
+        let buffer: Buffer<Storage<Memory.Allocator<Memory.Heap>>.Contiguous<Move>>.Linear = Buffer<Storage<Memory.Allocator<Memory.Heap>>.Contiguous<Move>>.Linear {
             Move(42)
         }
         #expect(LinearBuilderTests.collected(buffer) == [42])
@@ -268,7 +271,7 @@ extension LinearBuilderTests.NonCopyable {
 
     @Test
     func `Builder with multiple noncopyable elements`() {
-        let buffer: Buffer<Move>.Linear = Buffer<Move>.Linear {
+        let buffer: Buffer<Storage<Memory.Allocator<Memory.Heap>>.Contiguous<Move>>.Linear = Buffer<Storage<Memory.Allocator<Memory.Heap>>.Contiguous<Move>>.Linear {
             Move(1)
             Move(2)
             Move(3)
@@ -279,7 +282,7 @@ extension LinearBuilderTests.NonCopyable {
     @Test
     func `Builder with conditional noncopyable element - included`() {
         let include = true
-        let buffer: Buffer<Move>.Linear = Buffer<Move>.Linear {
+        let buffer: Buffer<Storage<Memory.Allocator<Memory.Heap>>.Contiguous<Move>>.Linear = Buffer<Storage<Memory.Allocator<Memory.Heap>>.Contiguous<Move>>.Linear {
             Move(1)
             if include {
                 Move(2)
@@ -292,7 +295,7 @@ extension LinearBuilderTests.NonCopyable {
     @Test
     func `Builder with conditional noncopyable element - excluded`() {
         let include = false
-        let buffer: Buffer<Move>.Linear = Buffer<Move>.Linear {
+        let buffer: Buffer<Storage<Memory.Allocator<Memory.Heap>>.Contiguous<Move>>.Linear = Buffer<Storage<Memory.Allocator<Memory.Heap>>.Contiguous<Move>>.Linear {
             Move(1)
             if include {
                 Move(2)
@@ -305,7 +308,7 @@ extension LinearBuilderTests.NonCopyable {
     @Test
     func `Builder with if-else noncopyable`() {
         let condition = true
-        let buffer: Buffer<Move>.Linear = Buffer<Move>.Linear {
+        let buffer: Buffer<Storage<Memory.Allocator<Memory.Heap>>.Contiguous<Move>>.Linear = Buffer<Storage<Memory.Allocator<Memory.Heap>>.Contiguous<Move>>.Linear {
             if condition {
                 Move(10)
             } else {
@@ -317,7 +320,7 @@ extension LinearBuilderTests.NonCopyable {
 
     @Test
     func `Empty noncopyable builder`() {
-        let buffer: Buffer<Move>.Linear = Buffer<Move>.Linear {}
+        let buffer: Buffer<Storage<Memory.Allocator<Memory.Heap>>.Contiguous<Move>>.Linear = Buffer<Storage<Memory.Allocator<Memory.Heap>>.Contiguous<Move>>.Linear {}
         let isEmpty = buffer.isEmpty
         #expect(isEmpty)
     }
@@ -329,51 +332,65 @@ extension LinearBuilderTests.StaticMethods {
 
     @Test
     func `buildExpression single element`() {
-        let result = Buffer<Int>.Linear.Builder.buildExpression(42)
+        let result = Buffer<Storage<Memory.Allocator<Memory.Heap>>.Contiguous<Int>>.Linear.Builder.buildExpression(42)
         #expect(LinearBuilderTests.collected(result) == [42])
     }
 
     @Test
     func `buildExpression existing buffer`() {
-        let input: Buffer<Int>.Linear = Buffer<Int>.Linear { 1; 2; 3 }
-        let result = Buffer<Int>.Linear.Builder.buildExpression(input)
+        let input: Buffer<Storage<Memory.Allocator<Memory.Heap>>.Contiguous<Int>>.Linear = Buffer<Storage<Memory.Allocator<Memory.Heap>>.Contiguous<Int>>.Linear {
+            1
+            2
+            3
+        }
+        let result = Buffer<Storage<Memory.Allocator<Memory.Heap>>.Contiguous<Int>>.Linear.Builder.buildExpression(input)
         #expect(LinearBuilderTests.collected(result) == [1, 2, 3])
     }
 
     @Test
     func `buildExpression optional - some`() {
         let value: Int? = 42
-        let result = Buffer<Int>.Linear.Builder.buildExpression(value)
+        let result = Buffer<Storage<Memory.Allocator<Memory.Heap>>.Contiguous<Int>>.Linear.Builder.buildExpression(value)
         #expect(LinearBuilderTests.collected(result) == [42])
     }
 
     @Test
     func `buildExpression optional - none`() {
         let value: Int? = nil
-        let result = Buffer<Int>.Linear.Builder.buildExpression(value)
+        let result = Buffer<Storage<Memory.Allocator<Memory.Heap>>.Contiguous<Int>>.Linear.Builder.buildExpression(value)
         let isEmpty = result.isEmpty
         #expect(isEmpty)
     }
 
     @Test
     func `buildPartialBlock first`() {
-        let first: Buffer<Int>.Linear = Buffer<Int>.Linear { 1; 2; 3 }
-        let result = Buffer<Int>.Linear.Builder.buildPartialBlock(first: first)
+        let first: Buffer<Storage<Memory.Allocator<Memory.Heap>>.Contiguous<Int>>.Linear = Buffer<Storage<Memory.Allocator<Memory.Heap>>.Contiguous<Int>>.Linear {
+            1
+            2
+            3
+        }
+        let result = Buffer<Storage<Memory.Allocator<Memory.Heap>>.Contiguous<Int>>.Linear.Builder.buildPartialBlock(first: first)
         #expect(LinearBuilderTests.collected(result) == [1, 2, 3])
     }
 
     @Test
     func `buildPartialBlock first void`() {
-        let result = Buffer<Int>.Linear.Builder.buildPartialBlock(first: ())
+        let result = Buffer<Storage<Memory.Allocator<Memory.Heap>>.Contiguous<Int>>.Linear.Builder.buildPartialBlock(first: ())
         let isEmpty = result.isEmpty
         #expect(isEmpty)
     }
 
     @Test
     func `buildPartialBlock accumulated and next`() {
-        let acc: Buffer<Int>.Linear = Buffer<Int>.Linear { 1; 2 }
-        let next: Buffer<Int>.Linear = Buffer<Int>.Linear { 3; 4 }
-        let result = Buffer<Int>.Linear.Builder.buildPartialBlock(
+        let acc: Buffer<Storage<Memory.Allocator<Memory.Heap>>.Contiguous<Int>>.Linear = Buffer<Storage<Memory.Allocator<Memory.Heap>>.Contiguous<Int>>.Linear {
+            1
+            2
+        }
+        let next: Buffer<Storage<Memory.Allocator<Memory.Heap>>.Contiguous<Int>>.Linear = Buffer<Storage<Memory.Allocator<Memory.Heap>>.Contiguous<Int>>.Linear {
+            3
+            4
+        }
+        let result = Buffer<Storage<Memory.Allocator<Memory.Heap>>.Contiguous<Int>>.Linear.Builder.buildPartialBlock(
             accumulated: acc,
             next: next
         )
@@ -382,44 +399,57 @@ extension LinearBuilderTests.StaticMethods {
 
     @Test
     func `buildBlock empty`() {
-        let result = Buffer<Int>.Linear.Builder.buildBlock()
+        let result = Buffer<Storage<Memory.Allocator<Memory.Heap>>.Contiguous<Int>>.Linear.Builder.buildBlock()
         let isEmpty = result.isEmpty
         #expect(isEmpty)
     }
 
     @Test
     func `buildOptional some`() {
-        let component: Buffer<Int>.Linear? = Buffer<Int>.Linear { 1; 2 }
-        let result = Buffer<Int>.Linear.Builder.buildOptional(component)
+        let component: Buffer<Storage<Memory.Allocator<Memory.Heap>>.Contiguous<Int>>.Linear? = Buffer<Storage<Memory.Allocator<Memory.Heap>>.Contiguous<Int>>.Linear {
+            1
+            2
+        }
+        let result = Buffer<Storage<Memory.Allocator<Memory.Heap>>.Contiguous<Int>>.Linear.Builder.buildOptional(component)
         #expect(LinearBuilderTests.collected(result) == [1, 2])
     }
 
     @Test
     func `buildOptional none`() {
-        let component: Buffer<Int>.Linear? = nil
-        let result = Buffer<Int>.Linear.Builder.buildOptional(component)
+        let component: Buffer<Storage<Memory.Allocator<Memory.Heap>>.Contiguous<Int>>.Linear? = nil
+        let result = Buffer<Storage<Memory.Allocator<Memory.Heap>>.Contiguous<Int>>.Linear.Builder.buildOptional(component)
         let isEmpty = result.isEmpty
         #expect(isEmpty)
     }
 
     @Test
     func `buildEither first`() {
-        let first: Buffer<Int>.Linear = Buffer<Int>.Linear { 1; 2 }
-        let result = Buffer<Int>.Linear.Builder.buildEither(first: first)
+        let first: Buffer<Storage<Memory.Allocator<Memory.Heap>>.Contiguous<Int>>.Linear = Buffer<Storage<Memory.Allocator<Memory.Heap>>.Contiguous<Int>>.Linear {
+            1
+            2
+        }
+        let result = Buffer<Storage<Memory.Allocator<Memory.Heap>>.Contiguous<Int>>.Linear.Builder.buildEither(first: first)
         #expect(LinearBuilderTests.collected(result) == [1, 2])
     }
 
     @Test
     func `buildEither second`() {
-        let second: Buffer<Int>.Linear = Buffer<Int>.Linear { 3; 4 }
-        let result = Buffer<Int>.Linear.Builder.buildEither(second: second)
+        let second: Buffer<Storage<Memory.Allocator<Memory.Heap>>.Contiguous<Int>>.Linear = Buffer<Storage<Memory.Allocator<Memory.Heap>>.Contiguous<Int>>.Linear {
+            3
+            4
+        }
+        let result = Buffer<Storage<Memory.Allocator<Memory.Heap>>.Contiguous<Int>>.Linear.Builder.buildEither(second: second)
         #expect(LinearBuilderTests.collected(result) == [3, 4])
     }
 
     @Test
     func `buildLimitedAvailability passthrough`() {
-        let component: Buffer<Int>.Linear = Buffer<Int>.Linear { 1; 2; 3 }
-        let result = Buffer<Int>.Linear.Builder.buildLimitedAvailability(component)
+        let component: Buffer<Storage<Memory.Allocator<Memory.Heap>>.Contiguous<Int>>.Linear = Buffer<Storage<Memory.Allocator<Memory.Heap>>.Contiguous<Int>>.Linear {
+            1
+            2
+            3
+        }
+        let result = Buffer<Storage<Memory.Allocator<Memory.Heap>>.Contiguous<Int>>.Linear.Builder.buildLimitedAvailability(component)
         #expect(LinearBuilderTests.collected(result) == [1, 2, 3])
     }
 }

@@ -1,0 +1,1215 @@
+sil_stage canonical
+
+import Builtin
+import Swift
+import SwiftShims
+
+import Buffer_Linear_Primitive
+
+import Buffer_Protocol_Primitives
+
+import Index_Primitives
+
+@inline(never) func bufferProtocolSum<B>(_ b: borrowing B) -> Int where B : __BufferProtocol, B.Element == Int, B : ~Copyable
+
+@_hasStorage @_hasInitialValue var buffer: Buffer<Int>.Linear { get set }
+
+@_hasStorage @_hasInitialValue var i: Int { get set }
+
+@_hasStorage @_hasInitialValue var acc: Int { get set }
+
+// buffer
+sil_global hidden @$s4main6buffer16Buffer_Primitive0C0O0c8_Linear_D0Ri_zrlE0E0VySi_Gvp : $Buffer<Int>.Linear
+
+// i
+sil_global hidden @$s4main1iSivp : $Int
+
+// acc
+sil_global hidden @$s4main3accSivp : $Int
+
+// main
+// Isolation: unspecified
+sil @main : $@convention(c) (Int32, UnsafeMutablePointer<Optional<UnsafeMutablePointer<Int8>>>) -> Int32 {
+[%1: noescape **]
+[global: read,write,copy,destroy,allocate,deinit_barrier]
+bb0(%0 : $Int32, %1 : $UnsafeMutablePointer<Optional<UnsafeMutablePointer<Int8>>>):
+  alloc_global @$s4main6buffer16Buffer_Primitive0C0O0c8_Linear_D0Ri_zrlE0E0VySi_Gvp // id: %2
+  %3 = global_addr @$s4main6buffer16Buffer_Primitive0C0O0c8_Linear_D0Ri_zrlE0E0VySi_Gvp : $*Buffer<Int>.Linear // users: %39, %580, %47
+  %4 = integer_literal $Builtin.Word, 1024        // user: %5
+  %5 = alloc_ref [tail_elems $Int * %4] $Storage<Int>.Heap.Buffer // users: %12, %6
+  %6 = upcast %5 to $ManagedBuffer<Storage<Int>.Heap.Header, Int> // users: %13, %20, %8, %11
+  %7 = enum $Storage<Int>.Initialization, #Storage.Initialization.empty!enumelt // users: %490, %450, %338, %9
+  %8 = ref_element_addr %6, #ManagedBuffer.header // user: %10
+  %9 = struct $Storage<Int>.Heap.Header (%7)      // users: %443, %364, %331, %252, %92, %10
+  store %9 to %8                                  // id: %10
+  fix_lifetime %6                                 // id: %11
+  %12 = struct $Storage<Int>.Heap (%5)            // user: %38
+  %13 = ref_to_raw_pointer %6 to $Builtin.RawPointer // users: %19, %14
+  %14 = struct $UnsafeRawPointer (%13)            // user: %16
+  // function_ref @objc _swift_stdlib_malloc_size(_:)
+  %15 = function_ref @$sSo25_swift_stdlib_malloc_sizeySiSVFTo : $@convention(c) (UnsafeRawPointer) -> Int // users: %75, %368, %256, %16
+  %16 = apply %15(%14) : $@convention(c) (UnsafeRawPointer) -> Int // user: %17
+  %17 = struct_extract %16, #Int._value           // user: %18
+  %18 = builtin "truncOrBitCast_Int64_Word"(%17) : $Builtin.Word // user: %19
+  %19 = index_raw_pointer %13, %18                // user: %22
+  %20 = ref_tail_addr %6, $Int                    // user: %21
+  %21 = address_to_pointer %20 to $Builtin.RawPointer // user: %23
+  %22 = builtin "ptrtoint_Word"(%19) : $Builtin.Word // user: %24
+  %23 = builtin "ptrtoint_Word"(%21) : $Builtin.Word // user: %24
+  %24 = builtin "sub_Word"(%22, %23) : $Builtin.Word // user: %25
+  %25 = builtin "sextOrBitCast_Word_Int64"(%24) : $Builtin.Int64 // user: %27
+  %26 = integer_literal $Builtin.Int64, 8         // users: %85, %378, %266, %27
+  %27 = builtin "sdiv_Int64"(%25, %26) : $Builtin.Int64 // users: %31, %29
+  %28 = integer_literal $Builtin.Int64, 0         // users: %527, %520, %522, %86, %488, %379, %383, %448, %395, %267, %271, %336, %283, %245, %358, %42, %34, %29
+  %29 = builtin "cmp_slt_Int64"(%27, %28) : $Builtin.Int1 // user: %30
+  cond_fail %29, "Negative value is not representable" // id: %30
+  %31 = struct $UInt (%27)                        // user: %32
+  %32 = struct $Cardinal (%31)                    // user: %33
+  %33 = struct $Tagged<Int, Cardinal> (%32)       // user: %37
+  %34 = struct $UInt (%28)                        // users: %491, %451, %339, %35
+  %35 = struct $Cardinal (%34)                    // user: %36
+  %36 = struct $Tagged<Int, Cardinal> (%35)       // user: %37
+  %37 = struct $Buffer<Int>.Linear.Header (%36, %33) // user: %38
+  %38 = struct $Buffer<Int>.Linear (%37, %12)     // user: %39
+  store %38 to %3                                 // id: %39
+  alloc_global @$s4main1iSivp                     // id: %40
+  %41 = global_addr @$s4main1iSivp : $*Int        // users: %60, %43, %504
+  %42 = struct $Int (%28)                         // users: %518, %43
+  store %42 to %41                                // id: %43
+  %44 = integer_literal $Builtin.Int64, 1024      // user: %512
+  %45 = integer_literal $Builtin.Int64, 1         // users: %577, %507, %472, %46
+  %46 = struct $Int (%45)                         // user: %471
+  %47 = begin_access [modify] [dynamic] %3        // users: %50, %48, %515
+  %48 = struct_element_addr %47, #Buffer.Linear.storage // users: %446, %334, %242, %386, %389, %392, %394, %274, %277, %280, %282, %49
+  %49 = struct_element_addr %48, #Storage.Heap._buffer // users: %163, %207, %116, %241, %439, %327, %465, %66, %63
+  %50 = struct_element_addr %47, #Buffer.Linear.header // users: %55, %51
+  %51 = struct_element_addr %50, #Buffer.Linear.Header.count // users: %486, %52
+  %52 = struct_element_addr %51, #Tagged.underlying // user: %53
+  %53 = struct_element_addr %52, #Cardinal.rawValue // users: %381, %269, %54
+  %54 = struct_element_addr %53, #UInt._value     // user: %95
+  %55 = struct_element_addr %50, #Buffer.Linear.Header.capacity // users: %447, %335, %56
+  %56 = struct_element_addr %55, #Tagged.underlying // user: %57
+  %57 = struct_element_addr %56, #Cardinal.rawValue // user: %58
+  %58 = struct_element_addr %57, #UInt._value     // user: %96
+  %59 = integer_literal $Builtin.Int1, 0          // users: %596, %507, %472
+  %60 = begin_access [modify] [dynamic] [no_nested_conflict] %41 // user: %61
+  end_access %60                                  // id: %61
+  br bb1                                          // id: %62
+
+bb1:                                              // Preds: bb59 bb0
+  %63 = is_unique %49                             // user: %64
+  cond_br %63, bb2, bb3                           // id: %64
+
+bb2:                                              // Preds: bb1
+  br bb4                                          // id: %65
+
+bb3:                                              // Preds: bb1
+  %66 = load %49                                  // user: %67
+  %67 = upcast %66 to $ManagedBuffer<Storage<Int>.Heap.Header, Int> // users: %73, %79, %68
+  %68 = ref_element_addr %67, #ManagedBuffer.header // user: %69
+  %69 = begin_access [read] [dynamic] [no_nested_conflict] %68 // users: %72, %70
+  %70 = struct_element_addr %69, #Storage.Heap.Header.initialization // user: %71
+  %71 = load %70                                  // users: %238, %94
+  end_access %69                                  // id: %72
+  %73 = ref_to_raw_pointer %67 to $Builtin.RawPointer // users: %78, %74
+  %74 = struct $UnsafeRawPointer (%73)            // user: %75
+  %75 = apply %15(%74) : $@convention(c) (UnsafeRawPointer) -> Int // user: %76
+  %76 = struct_extract %75, #Int._value           // user: %77
+  %77 = builtin "truncOrBitCast_Int64_Word"(%76) : $Builtin.Word // user: %78
+  %78 = index_raw_pointer %73, %77                // user: %81
+  %79 = ref_tail_addr %67, $Int                   // user: %80
+  %80 = address_to_pointer %79 to $Builtin.RawPointer // user: %82
+  %81 = builtin "ptrtoint_Word"(%78) : $Builtin.Word // user: %83
+  %82 = builtin "ptrtoint_Word"(%80) : $Builtin.Word // user: %83
+  %83 = builtin "sub_Word"(%81, %82) : $Builtin.Word // user: %84
+  %84 = builtin "sextOrBitCast_Word_Int64"(%83) : $Builtin.Int64 // user: %85
+  %85 = builtin "sdiv_Int64"(%84, %26) : $Builtin.Int64 // users: %88, %86
+  %86 = builtin "cmp_slt_Int64"(%85, %28) : $Builtin.Int1 // user: %87
+  cond_fail %86, "Negative value is not representable" // id: %87
+  %88 = builtin "truncOrBitCast_Int64_Word"(%85) : $Builtin.Word // user: %89
+  %89 = alloc_ref [tail_elems $Int * %88] $Storage<Int>.Heap.Buffer // users: %236, %90
+  %90 = upcast %89 to $ManagedBuffer<Storage<Int>.Heap.Header, Int> // users: %158, %162, %202, %206, %111, %115, %91, %93
+  %91 = ref_element_addr %90, #ManagedBuffer.header // users: %237, %92
+  store %9 to %91                                 // id: %92
+  fix_lifetime %90                                // id: %93
+  switch_enum %71, case #Storage.Initialization.empty!enumelt: bb5, case #Storage.Initialization.one!enumelt: bb6, case #Storage.Initialization.two!enumelt: bb9 // id: %94
+
+bb4:                                              // Preds: bb2 bb15
+  %95 = load %54                                  // users: %97, %247
+  %96 = load %58                                  // users: %97, %245, %354
+  %97 = builtin "cmp_eq_Int64"(%95, %96) : $Builtin.Int1 // user: %98
+  cond_br %97, bb16, bb17                         // id: %98
+
+bb5:                                              // Preds: bb3
+  br bb15                                         // id: %99
+
+// %100                                           // users: %102, %101
+bb6(%100 : $Range<Tagged<Int, Ordinal>>):         // Preds: bb3
+  %101 = struct_extract %100, #Range.lowerBound   // user: %103
+  %102 = struct_extract %100, #Range.upperBound   // user: %106
+  %103 = struct_extract %101, #Tagged.underlying  // user: %104
+  %104 = struct_extract %103, #Ordinal.rawValue   // user: %105
+  %105 = struct_extract %104, #UInt._value        // users: %112, %123, %109
+  %106 = struct_extract %102, #Tagged.underlying  // user: %107
+  %107 = struct_extract %106, #Ordinal.rawValue   // user: %108
+  %108 = struct_extract %107, #UInt._value        // users: %123, %109
+  %109 = builtin "cmp_eq_Int64"(%105, %108) : $Builtin.Int1 // user: %110
+  cond_br %109, bb8, bb7                          // id: %110
+
+bb7:                                              // Preds: bb6
+  %111 = ref_tail_addr %90, $Int                  // user: %113
+  %112 = builtin "truncOrBitCast_Int64_Word"(%105) : $Builtin.Word // users: %119, %113
+  %113 = index_addr [stack_protection] %111, %112 // user: %114
+  %114 = address_to_pointer [stack_protection] %113 to $Builtin.RawPointer // user: %142
+  fix_lifetime %90                                // id: %115
+  %116 = load %49                                 // user: %117
+  %117 = upcast %116 to $ManagedBuffer<Storage<Int>.Heap.Header, Int> // users: %121, %118
+  %118 = ref_tail_addr %117, $Int                 // user: %119
+  %119 = index_addr [stack_protection] %118, %112 // user: %120
+  %120 = address_to_pointer [stack_protection] %119 to $Builtin.RawPointer // user: %142
+  fix_lifetime %117                               // id: %121
+  %122 = integer_literal $Builtin.Int1, -1        // user: %123
+  %123 = builtin "usub_with_overflow_Int64"(%108, %105, %122) : $(Builtin.Int64, Builtin.Int1) // users: %125, %124
+  %124 = tuple_extract %123, 0                    // user: %127
+  %125 = tuple_extract %123, 1                    // user: %126
+  cond_fail %125, "arithmetic overflow"           // id: %126
+  %127 = struct $UInt (%124)                      // user: %128
+  %128 = struct $Cardinal (%127)                  // users: %133, %129
+  %129 = struct $Tagged<Int, Cardinal> (%128)     // user: %131
+  %130 = alloc_stack $Tagged<Int, Cardinal>       // users: %139, %134, %131
+  store %129 to %130                              // id: %131
+  %132 = alloc_stack $Cardinal                    // users: %138, %135, %134, %133
+  store %128 to %132                              // id: %133
+  mark_dependence_addr [nonescaping] %132 on %130 // id: %134
+  %135 = struct_element_addr %132, #Cardinal.rawValue // user: %136
+  %136 = struct_element_addr %135, #UInt._value   // user: %137
+  %137 = load %136                                // user: %140
+  dealloc_stack %132                              // id: %138
+  dealloc_stack %130                              // id: %139
+  %140 = builtin "truncOrBitCast_Int64_Word"(%137) : $Builtin.Word // user: %142
+  %141 = metatype $@thin Int.Type                 // user: %142
+  %142 = builtin "copyArray"<Int>(%141, %114, %120, %140) : $()
+  br bb15                                         // id: %143
+
+bb8:                                              // Preds: bb6
+  br bb15                                         // id: %144
+
+// %145                                           // users: %191, %146
+bb9(%145 : $(first: Range<Tagged<Int, Ordinal>>, second: Range<Tagged<Int, Ordinal>>)): // Preds: bb3
+  %146 = tuple_extract %145, 0                    // users: %148, %147
+  %147 = struct_extract %146, #Range.lowerBound   // user: %149
+  %148 = struct_extract %146, #Range.upperBound   // user: %152
+  %149 = struct_extract %147, #Tagged.underlying  // user: %150
+  %150 = struct_extract %149, #Ordinal.rawValue   // user: %151
+  %151 = struct_extract %150, #UInt._value        // users: %159, %170, %155
+  %152 = struct_extract %148, #Tagged.underlying  // user: %153
+  %153 = struct_extract %152, #Ordinal.rawValue   // user: %154
+  %154 = struct_extract %153, #UInt._value        // users: %170, %155
+  %155 = builtin "cmp_eq_Int64"(%151, %154) : $Builtin.Int1 // user: %156
+  cond_br %155, bb10, bb11                        // id: %156
+
+bb10:                                             // Preds: bb9
+  br bb12                                         // id: %157
+
+bb11:                                             // Preds: bb9
+  %158 = ref_tail_addr %90, $Int                  // user: %160
+  %159 = builtin "truncOrBitCast_Int64_Word"(%151) : $Builtin.Word // users: %166, %160
+  %160 = index_addr [stack_protection] %158, %159 // user: %161
+  %161 = address_to_pointer [stack_protection] %160 to $Builtin.RawPointer // user: %189
+  fix_lifetime %90                                // id: %162
+  %163 = load %49                                 // user: %164
+  %164 = upcast %163 to $ManagedBuffer<Storage<Int>.Heap.Header, Int> // users: %168, %165
+  %165 = ref_tail_addr %164, $Int                 // user: %166
+  %166 = index_addr [stack_protection] %165, %159 // user: %167
+  %167 = address_to_pointer [stack_protection] %166 to $Builtin.RawPointer // user: %189
+  fix_lifetime %164                               // id: %168
+  %169 = integer_literal $Builtin.Int1, -1        // user: %170
+  %170 = builtin "usub_with_overflow_Int64"(%154, %151, %169) : $(Builtin.Int64, Builtin.Int1) // users: %172, %171
+  %171 = tuple_extract %170, 0                    // user: %174
+  %172 = tuple_extract %170, 1                    // user: %173
+  cond_fail %172, "arithmetic overflow"           // id: %173
+  %174 = struct $UInt (%171)                      // user: %175
+  %175 = struct $Cardinal (%174)                  // users: %180, %176
+  %176 = struct $Tagged<Int, Cardinal> (%175)     // user: %178
+  %177 = alloc_stack $Tagged<Int, Cardinal>       // users: %186, %181, %178
+  store %176 to %177                              // id: %178
+  %179 = alloc_stack $Cardinal                    // users: %185, %182, %181, %180
+  store %175 to %179                              // id: %180
+  mark_dependence_addr [nonescaping] %179 on %177 // id: %181
+  %182 = struct_element_addr %179, #Cardinal.rawValue // user: %183
+  %183 = struct_element_addr %182, #UInt._value   // user: %184
+  %184 = load %183                                // user: %187
+  dealloc_stack %179                              // id: %185
+  dealloc_stack %177                              // id: %186
+  %187 = builtin "truncOrBitCast_Int64_Word"(%184) : $Builtin.Word // user: %189
+  %188 = metatype $@thin Int.Type                 // user: %189
+  %189 = builtin "copyArray"<Int>(%188, %161, %167, %187) : $()
+  br bb12                                         // id: %190
+
+bb12:                                             // Preds: bb11 bb10
+  %191 = tuple_extract %145, 1                    // users: %193, %192
+  %192 = struct_extract %191, #Range.lowerBound   // user: %194
+  %193 = struct_extract %191, #Range.upperBound   // user: %197
+  %194 = struct_extract %192, #Tagged.underlying  // user: %195
+  %195 = struct_extract %194, #Ordinal.rawValue   // user: %196
+  %196 = struct_extract %195, #UInt._value        // users: %203, %214, %200
+  %197 = struct_extract %193, #Tagged.underlying  // user: %198
+  %198 = struct_extract %197, #Ordinal.rawValue   // user: %199
+  %199 = struct_extract %198, #UInt._value        // users: %214, %200
+  %200 = builtin "cmp_eq_Int64"(%196, %199) : $Builtin.Int1 // user: %201
+  cond_br %200, bb14, bb13                        // id: %201
+
+bb13:                                             // Preds: bb12
+  %202 = ref_tail_addr %90, $Int                  // user: %204
+  %203 = builtin "truncOrBitCast_Int64_Word"(%196) : $Builtin.Word // users: %210, %204
+  %204 = index_addr [stack_protection] %202, %203 // user: %205
+  %205 = address_to_pointer [stack_protection] %204 to $Builtin.RawPointer // user: %233
+  fix_lifetime %90                                // id: %206
+  %207 = load %49                                 // user: %208
+  %208 = upcast %207 to $ManagedBuffer<Storage<Int>.Heap.Header, Int> // users: %212, %209
+  %209 = ref_tail_addr %208, $Int                 // user: %210
+  %210 = index_addr [stack_protection] %209, %203 // user: %211
+  %211 = address_to_pointer [stack_protection] %210 to $Builtin.RawPointer // user: %233
+  fix_lifetime %208                               // id: %212
+  %213 = integer_literal $Builtin.Int1, -1        // user: %214
+  %214 = builtin "usub_with_overflow_Int64"(%199, %196, %213) : $(Builtin.Int64, Builtin.Int1) // users: %216, %215
+  %215 = tuple_extract %214, 0                    // user: %218
+  %216 = tuple_extract %214, 1                    // user: %217
+  cond_fail %216, "arithmetic overflow"           // id: %217
+  %218 = struct $UInt (%215)                      // user: %219
+  %219 = struct $Cardinal (%218)                  // users: %224, %220
+  %220 = struct $Tagged<Int, Cardinal> (%219)     // user: %222
+  %221 = alloc_stack $Tagged<Int, Cardinal>       // users: %230, %225, %222
+  store %220 to %221                              // id: %222
+  %223 = alloc_stack $Cardinal                    // users: %229, %226, %225, %224
+  store %219 to %223                              // id: %224
+  mark_dependence_addr [nonescaping] %223 on %221 // id: %225
+  %226 = struct_element_addr %223, #Cardinal.rawValue // user: %227
+  %227 = struct_element_addr %226, #UInt._value   // user: %228
+  %228 = load %227                                // user: %231
+  dealloc_stack %223                              // id: %229
+  dealloc_stack %221                              // id: %230
+  %231 = builtin "truncOrBitCast_Int64_Word"(%228) : $Builtin.Word // user: %233
+  %232 = metatype $@thin Int.Type                 // user: %233
+  %233 = builtin "copyArray"<Int>(%232, %205, %211, %231) : $()
+  br bb15                                         // id: %234
+
+bb14:                                             // Preds: bb12
+  br bb15                                         // id: %235
+
+bb15:                                             // Preds: bb7 bb13 bb14 bb8 bb5
+  %236 = struct $Storage<Int>.Heap (%89)          // user: %242
+  %237 = begin_access [modify] [dynamic] [no_nested_conflict] %91 // users: %239, %240
+  %238 = struct $Storage<Int>.Heap.Header (%71)   // user: %239
+  store %238 to %237                              // id: %239
+  end_access %237                                 // id: %240
+  %241 = load %49                                 // user: %243
+  store %236 to %48                               // id: %242
+  strong_release %241                             // id: %243
+  br bb4                                          // id: %244
+
+bb16:                                             // Preds: bb4
+  %245 = builtin "cmp_eq_Int64"(%96, %28) : $Builtin.Int1 // user: %246
+  cond_br %245, bb18, bb35                        // id: %246
+
+bb17:                                             // Preds: bb4
+  br bb52(%95)                                    // id: %247
+
+bb18:                                             // Preds: bb16
+  %248 = integer_literal $Builtin.Word, 1         // user: %249
+  %249 = alloc_ref [tail_elems $Int * %248] $Storage<Int>.Heap.Buffer // users: %323, %250
+  %250 = upcast %249 to $ManagedBuffer<Storage<Int>.Heap.Header, Int> // users: %254, %260, %287, %251, %253
+  %251 = ref_element_addr %250, #ManagedBuffer.header // users: %347, %252
+  store %9 to %251                                // id: %252
+  fix_lifetime %250                               // id: %253
+  %254 = ref_to_raw_pointer %250 to $Builtin.RawPointer // users: %259, %255
+  %255 = struct $UnsafeRawPointer (%254)          // user: %256
+  %256 = apply %15(%255) : $@convention(c) (UnsafeRawPointer) -> Int // user: %257
+  %257 = struct_extract %256, #Int._value         // user: %258
+  %258 = builtin "truncOrBitCast_Int64_Word"(%257) : $Builtin.Word // user: %259
+  %259 = index_raw_pointer %254, %258             // user: %262
+  %260 = ref_tail_addr %250, $Int                 // users: %286, %261
+  %261 = address_to_pointer %260 to $Builtin.RawPointer // user: %263
+  %262 = builtin "ptrtoint_Word"(%259) : $Builtin.Word // user: %264
+  %263 = builtin "ptrtoint_Word"(%261) : $Builtin.Word // user: %264
+  %264 = builtin "sub_Word"(%262, %263) : $Builtin.Word // user: %265
+  %265 = builtin "sextOrBitCast_Word_Int64"(%264) : $Builtin.Int64 // user: %266
+  %266 = builtin "sdiv_Int64"(%265, %26) : $Builtin.Int64 // users: %324, %267
+  %267 = builtin "cmp_slt_Int64"(%266, %28) : $Builtin.Int1 // user: %268
+  cond_fail %267, "Negative value is not representable" // id: %268
+  %269 = load %53                                 // users: %270, %341
+  %270 = struct_extract %269, #UInt._value        // users: %351, %283, %306, %311, %336, %271
+  %271 = builtin "cmp_ult_Int64"(%28, %270) : $Builtin.Int1 // user: %272
+  cond_br %271, bb19, bb30                        // id: %272
+
+bb19:                                             // Preds: bb18
+  %273 = alloc_stack [lexical] [var_decl] $Property<Storage<Int>.Move, Storage<Int>.Heap>.Inout // users: %288, %281, %291, %303, %282
+  %274 = address_to_pointer [stack_protection] %48 to $Builtin.RawPointer // user: %275
+  %275 = struct $UnsafeMutableRawPointer (%274)   // user: %276
+  %276 = struct $Ownership.Inout<Storage<Int>.Heap> (%275) // user: %277
+  %277 = mark_dependence [nonescaping] %276 on %48 // user: %278
+  %278 = struct $Tagged<Storage<Int>.Move, Ownership.Inout<Storage<Int>.Heap>> (%277) // user: %279
+  %279 = struct $Property<Storage<Int>.Move, Storage<Int>.Heap>.Inout (%278) // user: %280
+  %280 = mark_dependence [nonescaping] %279 on %48 // user: %281
+  store %280 to %273                              // id: %281
+  mark_dependence_addr [nonescaping] %273 on %48  // id: %282
+  %283 = builtin "cmp_eq_Int64"(%270, %28) : $Builtin.Int1 // user: %284
+  cond_br %283, bb20, bb21                        // id: %284
+
+bb20:                                             // Preds: bb19
+  br bb22                                         // id: %285
+
+bb21:                                             // Preds: bb19
+  %286 = address_to_pointer [stack_protection] %260 to $Builtin.RawPointer // users: %301, %313, %309, %316, %319
+  fix_lifetime %250                               // id: %287
+  %288 = struct_element_addr %273, #Property.Inout._storage // user: %289
+  %289 = struct_element_addr %288, #Tagged.underlying // user: %290
+  %290 = load %289                                // user: %291
+  %291 = mark_dependence [nonescaping] %290 on %273 // user: %292
+  %292 = struct_extract %291, #Ownership.Inout._pointer // user: %293
+  %293 = struct_extract %292, #UnsafeMutableRawPointer._rawValue // user: %294
+  %294 = pointer_to_address %293 to [strict] $*Storage<Int>.Heap // user: %295
+  %295 = struct_element_addr %294, #Storage.Heap._buffer // user: %296
+  %296 = load %295                                // user: %297
+  %297 = upcast %296 to $ManagedBuffer<Storage<Int>.Heap.Header, Int> // users: %300, %298
+  %298 = ref_tail_addr %297, $Int                 // users: %307, %299
+  %299 = address_to_pointer [stack_protection] %298 to $Builtin.RawPointer // users: %301, %313, %316, %319
+  fix_lifetime %297                               // id: %300
+  %301 = builtin "cmp_ult_RawPointer"(%286, %299) : $Builtin.Int1 // user: %302
+  cond_br %301, bb23, bb24                        // id: %302
+
+bb22:                                             // Preds: bb29 bb28 bb25 bb20
+  dealloc_stack %273                              // id: %303
+  br bb31                                         // id: %304
+
+bb23:                                             // Preds: bb21
+  br bb25                                         // id: %305
+
+bb24:                                             // Preds: bb21
+  %306 = builtin "truncOrBitCast_Int64_Word"(%270) : $Builtin.Word // users: %319, %307
+  %307 = index_addr [stack_protection] %298, %306 // user: %308
+  %308 = address_to_pointer [stack_protection] %307 to $Builtin.RawPointer // user: %309
+  %309 = builtin "cmp_uge_RawPointer"(%286, %308) : $Builtin.Int1 // user: %310
+  cond_br %309, bb26, bb27                        // id: %310
+
+bb25:                                             // Preds: bb26 bb23
+  %311 = builtin "truncOrBitCast_Int64_Word"(%270) : $Builtin.Word // user: %313
+  %312 = metatype $@thin Int.Type                 // user: %313
+  %313 = builtin "takeArrayFrontToBack"<Int>(%312, %286, %299, %311) : $()
+  br bb22                                         // id: %314
+
+bb26:                                             // Preds: bb24
+  br bb25                                         // id: %315
+
+bb27:                                             // Preds: bb24
+  %316 = builtin "cmp_ne_RawPointer"(%286, %299) : $Builtin.Int1 // user: %317
+  cond_br %316, bb28, bb29                        // id: %317
+
+bb28:                                             // Preds: bb27
+  %318 = metatype $@thin Int.Type                 // user: %319
+  %319 = builtin "takeArrayBackToFront"<Int>(%318, %286, %299, %306) : $()
+  br bb22                                         // id: %320
+
+bb29:                                             // Preds: bb27
+  br bb22                                         // id: %321
+
+bb30:                                             // Preds: bb18
+  br bb31                                         // id: %322
+
+bb31:                                             // Preds: bb30 bb22
+  %323 = struct $Storage<Int>.Heap (%249)         // user: %334
+  %324 = struct $UInt (%266)                      // user: %325
+  %325 = struct $Cardinal (%324)                  // user: %326
+  %326 = struct $Tagged<Int, Cardinal> (%325)     // user: %335
+  %327 = load %49                                 // users: %333, %328
+  %328 = upcast %327 to $ManagedBuffer<Storage<Int>.Heap.Header, Int> // user: %329
+  %329 = ref_element_addr %328, #ManagedBuffer.header // user: %330
+  %330 = begin_access [modify] [dynamic] [no_nested_conflict] %329 // users: %331, %332
+  store %9 to %330                                // id: %331
+  end_access %330                                 // id: %332
+  strong_release %327                             // id: %333
+  store %323 to %48                               // id: %334
+  store %326 to %55                               // id: %335
+  %336 = builtin "cmp_eq_Int64"(%270, %28) : $Builtin.Int1 // user: %337
+  cond_br %336, bb32, bb33                        // id: %337
+
+bb32:                                             // Preds: bb31
+  br bb34(%7)                                     // id: %338
+
+bb33:                                             // Preds: bb31
+  %339 = struct $Ordinal (%34)                    // user: %340
+  %340 = struct $Tagged<Int, Ordinal> (%339)      // user: %343
+  %341 = struct $Ordinal (%269)                   // user: %342
+  %342 = struct $Tagged<Int, Ordinal> (%341)      // user: %343
+  %343 = struct $Range<Tagged<Int, Ordinal>> (%340, %342) // user: %344
+  %344 = enum $Storage<Int>.Initialization, #Storage.Initialization.one!enumelt, %343 // user: %345
+  br bb34(%344)                                   // id: %345
+
+// %346                                           // user: %348
+bb34(%346 : $Storage<Int>.Initialization):        // Preds: bb33 bb32
+  %347 = begin_access [modify] [dynamic] [no_nested_conflict] %251 // users: %349, %350
+  %348 = struct $Storage<Int>.Heap.Header (%346)  // user: %349
+  store %348 to %347                              // id: %349
+  end_access %347                                 // id: %350
+  br bb52(%270)                                   // id: %351
+
+bb35:                                             // Preds: bb16
+  %352 = integer_literal $Builtin.Int64, 2        // user: %354
+  %353 = integer_literal $Builtin.Int1, -1        // user: %354
+  %354 = builtin "smul_with_overflow_Int64"(%96, %352, %353) : $(Builtin.Int64, Builtin.Int1) // users: %356, %355
+  %355 = tuple_extract %354, 0                    // users: %360, %358
+  %356 = tuple_extract %354, 1                    // user: %357
+  cond_fail %356, "arithmetic overflow"           // id: %357
+  %358 = builtin "cmp_slt_Int64"(%355, %28) : $Builtin.Int1 // user: %359
+  cond_fail %358, "precondition failure"          // id: %359
+  %360 = builtin "truncOrBitCast_Int64_Word"(%355) : $Builtin.Word // user: %361
+  %361 = alloc_ref [tail_elems $Int * %360] $Storage<Int>.Heap.Buffer // users: %435, %362
+  %362 = upcast %361 to $ManagedBuffer<Storage<Int>.Heap.Header, Int> // users: %366, %372, %399, %363, %365
+  %363 = ref_element_addr %362, #ManagedBuffer.header // users: %459, %364
+  store %9 to %363                                // id: %364
+  fix_lifetime %362                               // id: %365
+  %366 = ref_to_raw_pointer %362 to $Builtin.RawPointer // users: %371, %367
+  %367 = struct $UnsafeRawPointer (%366)          // user: %368
+  %368 = apply %15(%367) : $@convention(c) (UnsafeRawPointer) -> Int // user: %369
+  %369 = struct_extract %368, #Int._value         // user: %370
+  %370 = builtin "truncOrBitCast_Int64_Word"(%369) : $Builtin.Word // user: %371
+  %371 = index_raw_pointer %366, %370             // user: %374
+  %372 = ref_tail_addr %362, $Int                 // users: %398, %373
+  %373 = address_to_pointer %372 to $Builtin.RawPointer // user: %375
+  %374 = builtin "ptrtoint_Word"(%371) : $Builtin.Word // user: %376
+  %375 = builtin "ptrtoint_Word"(%373) : $Builtin.Word // user: %376
+  %376 = builtin "sub_Word"(%374, %375) : $Builtin.Word // user: %377
+  %377 = builtin "sextOrBitCast_Word_Int64"(%376) : $Builtin.Int64 // user: %378
+  %378 = builtin "sdiv_Int64"(%377, %26) : $Builtin.Int64 // users: %436, %379
+  %379 = builtin "cmp_slt_Int64"(%378, %28) : $Builtin.Int1 // user: %380
+  cond_fail %379, "Negative value is not representable" // id: %380
+  %381 = load %53                                 // users: %382, %453
+  %382 = struct_extract %381, #UInt._value        // users: %463, %395, %418, %423, %448, %383
+  %383 = builtin "cmp_ult_Int64"(%28, %382) : $Builtin.Int1 // user: %384
+  cond_br %383, bb36, bb47                        // id: %384
+
+bb36:                                             // Preds: bb35
+  %385 = alloc_stack [lexical] [var_decl] $Property<Storage<Int>.Move, Storage<Int>.Heap>.Inout // users: %400, %393, %403, %415, %394
+  %386 = address_to_pointer [stack_protection] %48 to $Builtin.RawPointer // user: %387
+  %387 = struct $UnsafeMutableRawPointer (%386)   // user: %388
+  %388 = struct $Ownership.Inout<Storage<Int>.Heap> (%387) // user: %389
+  %389 = mark_dependence [nonescaping] %388 on %48 // user: %390
+  %390 = struct $Tagged<Storage<Int>.Move, Ownership.Inout<Storage<Int>.Heap>> (%389) // user: %391
+  %391 = struct $Property<Storage<Int>.Move, Storage<Int>.Heap>.Inout (%390) // user: %392
+  %392 = mark_dependence [nonescaping] %391 on %48 // user: %393
+  store %392 to %385                              // id: %393
+  mark_dependence_addr [nonescaping] %385 on %48  // id: %394
+  %395 = builtin "cmp_eq_Int64"(%382, %28) : $Builtin.Int1 // user: %396
+  cond_br %395, bb37, bb38                        // id: %396
+
+bb37:                                             // Preds: bb36
+  br bb39                                         // id: %397
+
+bb38:                                             // Preds: bb36
+  %398 = address_to_pointer [stack_protection] %372 to $Builtin.RawPointer // users: %413, %425, %421, %428, %431
+  fix_lifetime %362                               // id: %399
+  %400 = struct_element_addr %385, #Property.Inout._storage // user: %401
+  %401 = struct_element_addr %400, #Tagged.underlying // user: %402
+  %402 = load %401                                // user: %403
+  %403 = mark_dependence [nonescaping] %402 on %385 // user: %404
+  %404 = struct_extract %403, #Ownership.Inout._pointer // user: %405
+  %405 = struct_extract %404, #UnsafeMutableRawPointer._rawValue // user: %406
+  %406 = pointer_to_address %405 to [strict] $*Storage<Int>.Heap // user: %407
+  %407 = struct_element_addr %406, #Storage.Heap._buffer // user: %408
+  %408 = load %407                                // user: %409
+  %409 = upcast %408 to $ManagedBuffer<Storage<Int>.Heap.Header, Int> // users: %412, %410
+  %410 = ref_tail_addr %409, $Int                 // users: %419, %411
+  %411 = address_to_pointer [stack_protection] %410 to $Builtin.RawPointer // users: %413, %425, %428, %431
+  fix_lifetime %409                               // id: %412
+  %413 = builtin "cmp_ult_RawPointer"(%398, %411) : $Builtin.Int1 // user: %414
+  cond_br %413, bb40, bb41                        // id: %414
+
+bb39:                                             // Preds: bb46 bb45 bb42 bb37
+  dealloc_stack %385                              // id: %415
+  br bb48                                         // id: %416
+
+bb40:                                             // Preds: bb38
+  br bb42                                         // id: %417
+
+bb41:                                             // Preds: bb38
+  %418 = builtin "truncOrBitCast_Int64_Word"(%382) : $Builtin.Word // users: %431, %419
+  %419 = index_addr [stack_protection] %410, %418 // user: %420
+  %420 = address_to_pointer [stack_protection] %419 to $Builtin.RawPointer // user: %421
+  %421 = builtin "cmp_uge_RawPointer"(%398, %420) : $Builtin.Int1 // user: %422
+  cond_br %421, bb43, bb44                        // id: %422
+
+bb42:                                             // Preds: bb43 bb40
+  %423 = builtin "truncOrBitCast_Int64_Word"(%382) : $Builtin.Word // user: %425
+  %424 = metatype $@thin Int.Type                 // user: %425
+  %425 = builtin "takeArrayFrontToBack"<Int>(%424, %398, %411, %423) : $()
+  br bb39                                         // id: %426
+
+bb43:                                             // Preds: bb41
+  br bb42                                         // id: %427
+
+bb44:                                             // Preds: bb41
+  %428 = builtin "cmp_ne_RawPointer"(%398, %411) : $Builtin.Int1 // user: %429
+  cond_br %428, bb45, bb46                        // id: %429
+
+bb45:                                             // Preds: bb44
+  %430 = metatype $@thin Int.Type                 // user: %431
+  %431 = builtin "takeArrayBackToFront"<Int>(%430, %398, %411, %418) : $()
+  br bb39                                         // id: %432
+
+bb46:                                             // Preds: bb44
+  br bb39                                         // id: %433
+
+bb47:                                             // Preds: bb35
+  br bb48                                         // id: %434
+
+bb48:                                             // Preds: bb47 bb39
+  %435 = struct $Storage<Int>.Heap (%361)         // user: %446
+  %436 = struct $UInt (%378)                      // user: %437
+  %437 = struct $Cardinal (%436)                  // user: %438
+  %438 = struct $Tagged<Int, Cardinal> (%437)     // user: %447
+  %439 = load %49                                 // users: %445, %440
+  %440 = upcast %439 to $ManagedBuffer<Storage<Int>.Heap.Header, Int> // user: %441
+  %441 = ref_element_addr %440, #ManagedBuffer.header // user: %442
+  %442 = begin_access [modify] [dynamic] [no_nested_conflict] %441 // users: %443, %444
+  store %9 to %442                                // id: %443
+  end_access %442                                 // id: %444
+  strong_release %439                             // id: %445
+  store %435 to %48                               // id: %446
+  store %438 to %55                               // id: %447
+  %448 = builtin "cmp_eq_Int64"(%382, %28) : $Builtin.Int1 // user: %449
+  cond_br %448, bb49, bb50                        // id: %449
+
+bb49:                                             // Preds: bb48
+  br bb51(%7)                                     // id: %450
+
+bb50:                                             // Preds: bb48
+  %451 = struct $Ordinal (%34)                    // user: %452
+  %452 = struct $Tagged<Int, Ordinal> (%451)      // user: %455
+  %453 = struct $Ordinal (%381)                   // user: %454
+  %454 = struct $Tagged<Int, Ordinal> (%453)      // user: %455
+  %455 = struct $Range<Tagged<Int, Ordinal>> (%452, %454) // user: %456
+  %456 = enum $Storage<Int>.Initialization, #Storage.Initialization.one!enumelt, %455 // user: %457
+  br bb51(%456)                                   // id: %457
+
+// %458                                           // user: %460
+bb51(%458 : $Storage<Int>.Initialization):        // Preds: bb50 bb49
+  %459 = begin_access [modify] [dynamic] [no_nested_conflict] %363 // users: %461, %462
+  %460 = struct $Storage<Int>.Heap.Header (%458)  // user: %461
+  store %460 to %459                              // id: %461
+  end_access %459                                 // id: %462
+  br bb52(%382)                                   // id: %463
+
+// %464                                           // users: %468, %472
+bb52(%464 : $Builtin.Int64):                      // Preds: bb34 bb51 bb17
+  %465 = load %49                                 // user: %466
+  %466 = upcast %465 to $ManagedBuffer<Storage<Int>.Heap.Header, Int> // users: %499, %470, %467
+  %467 = ref_tail_addr %466, $Int                 // user: %469
+  %468 = builtin "truncOrBitCast_Int64_Word"(%464) : $Builtin.Word // user: %469
+  %469 = index_addr [stack_protection] %467, %468 // user: %471
+  fix_lifetime %466                               // id: %470
+  store %46 to %469                               // id: %471
+  %472 = builtin "uadd_with_overflow_Int64"(%464, %45, %59) : $(Builtin.Int64, Builtin.Int1) // users: %473, %479
+  %473 = tuple_extract %472, 1                    // user: %474
+  cond_br %473, bb53, bb54                        // id: %474
+
+bb53:                                             // Preds: bb52
+  %475 = integer_literal $Builtin.Int64, -1       // user: %476
+  %476 = struct $UInt (%475)                      // user: %477
+  %477 = struct $Cardinal (%476)                  // user: %478
+  br bb55(%477)                                   // id: %478
+
+bb54:                                             // Preds: bb52
+  %479 = tuple_extract %472, 0                    // user: %480
+  %480 = struct $UInt (%479)                      // user: %481
+  %481 = struct $Cardinal (%480)                  // user: %482
+  br bb55(%481)                                   // id: %482
+
+// %483                                           // users: %485, %484
+bb55(%483 : $Cardinal):                           // Preds: bb54 bb53
+  %484 = struct $Tagged<Int, Cardinal> (%483)     // user: %486
+  %485 = struct_extract %483, #Cardinal.rawValue  // users: %493, %487
+  store %484 to %51                               // id: %486
+  %487 = struct_extract %485, #UInt._value        // user: %488
+  %488 = builtin "cmp_eq_Int64"(%487, %28) : $Builtin.Int1 // user: %489
+  cond_br %488, bb56, bb57                        // id: %489
+
+bb56:                                             // Preds: bb55
+  br bb58(%7)                                     // id: %490
+
+bb57:                                             // Preds: bb55
+  %491 = struct $Ordinal (%34)                    // user: %492
+  %492 = struct $Tagged<Int, Ordinal> (%491)      // user: %495
+  %493 = struct $Ordinal (%485)                   // user: %494
+  %494 = struct $Tagged<Int, Ordinal> (%493)      // user: %495
+  %495 = struct $Range<Tagged<Int, Ordinal>> (%492, %494) // user: %496
+  %496 = enum $Storage<Int>.Initialization, #Storage.Initialization.one!enumelt, %495 // user: %497
+  br bb58(%496)                                   // id: %497
+
+// %498                                           // user: %501
+bb58(%498 : $Storage<Int>.Initialization):        // Preds: bb57 bb56
+  %499 = ref_element_addr %466, #ManagedBuffer.header // user: %500
+  %500 = begin_access [modify] [dynamic] [no_nested_conflict] %499 // users: %502, %503
+  %501 = struct $Storage<Int>.Heap.Header (%498)  // user: %502
+  store %501 to %500                              // id: %502
+  end_access %500                                 // id: %503
+  %504 = begin_access [modify] [static] [no_nested_conflict] %41 // users: %510, %505, %511
+  %505 = struct_element_addr %504, #Int._value    // user: %506
+  %506 = load %505                                // user: %507
+  %507 = builtin "sadd_with_overflow_Int64"(%506, %45, %59) : $(Builtin.Int64, Builtin.Int1) // user: %508
+  %508 = tuple_extract %507, 0                    // users: %512, %509
+  %509 = struct $Int (%508)                       // user: %510
+  store %509 to %504                              // id: %510
+  end_access %504                                 // id: %511
+  %512 = builtin "cmp_slt_Int64"(%508, %44) : $Builtin.Int1 // user: %513
+  cond_br %512, bb59, bb60                        // id: %513
+
+bb59:                                             // Preds: bb58
+  br bb1                                          // id: %514
+
+bb60:                                             // Preds: bb58
+  end_access %47                                  // id: %515
+  alloc_global @$s4main3accSivp                   // id: %516
+  %517 = global_addr @$s4main3accSivp : $*Int     // users: %525, %518, %593
+  store %42 to %517                               // id: %518
+  %519 = integer_literal $Builtin.Int64, 10000    // users: %601, %521
+  debug_value %28, var, name "$generator", type $IndexingIterator<Range<Int>>, expr op_fragment:#IndexingIterator._elements:op_fragment:#Range.lowerBound:op_fragment:#Int._value // id: %520
+  debug_value %519, var, name "$generator", type $IndexingIterator<Range<Int>>, expr op_fragment:#IndexingIterator._elements:op_fragment:#Range.upperBound:op_fragment:#Int._value // id: %521
+  debug_value %28, var, name "$generator", type $IndexingIterator<Range<Int>>, expr op_fragment:#IndexingIterator._position:op_fragment:#Int._value // id: %522
+  %523 = integer_literal $Builtin.Int1, -1        // user: %577
+  // function_ref specialized bufferProtocolSum<A>(_:)
+  %524 = function_ref @$s4main17bufferProtocolSumySix07Buffer_C11_Primitives02__eC0RzSi7ElementRtzRi_zlF0E10_Primitive0E0O0e8_Linear_H0Ri_zrlE0I0VySi_G_Tg5Tf4x_n : $@convention(thin) (Builtin.Int64, @guaranteed Storage<Int>.Heap.Buffer) -> Int // user: %591
+  %525 = begin_access [modify] [dynamic] [no_nested_conflict] %517 // user: %526
+  end_access %525                                 // id: %526
+  br bb62(%28)                                    // id: %527
+
+bb61:                                             // Preds: bb62
+  %528 = integer_literal $Builtin.Word, 2         // user: %531
+  %529 = integer_literal $Builtin.Int64, 2        // user: %530
+  %530 = struct $Int (%529)                       // user: %535
+  %531 = alloc_ref [tail_elems $Any * %528] $_ContiguousArrayStorage<Any> // users: %553, %532
+  %532 = upcast %531 to $__ContiguousArrayStorageBase // users: %539, %537
+  %533 = integer_literal $Builtin.Int64, 4        // user: %534
+  %534 = struct $UInt (%533)                      // user: %535
+  %535 = struct $_SwiftArrayBodyStorage (%530, %534) // user: %536
+  %536 = struct $_ArrayBody (%535)                // user: %538
+  %537 = ref_element_addr %532, #__ContiguousArrayStorageBase.countAndCapacity // user: %538
+  store %536 to %537                              // id: %538
+  %539 = ref_tail_addr %532, $Any                 // users: %550, %547
+  %540 = integer_literal $Builtin.Int64, 980252019 // user: %541
+  %541 = struct $UInt64 (%540)                    // user: %544
+  %542 = integer_literal $Builtin.Int64, -2017612633061982208 // user: %543
+  %543 = value_to_bridge_object %542              // user: %544
+  %544 = struct $_StringObject (%541, %543)       // user: %545
+  %545 = struct $_StringGuts (%544)               // user: %546
+  %546 = struct $String (%545)                    // user: %548
+  %547 = init_existential_addr %539, $String      // user: %548
+  store %546 to %547                              // id: %548
+  %549 = integer_literal $Builtin.Word, 1         // user: %550
+  %550 = index_addr %539, %549                    // user: %551
+  %551 = init_existential_addr %550, $Int         // user: %552
+  store %598 to %551                              // id: %552
+  %553 = end_cow_mutation %531                    // users: %572, %554
+  %554 = unchecked_ref_cast %553 to $Builtin.BridgeObject // user: %555
+  %555 = struct $_BridgeStorage<__ContiguousArrayStorageBase> (%554) // user: %556
+  %556 = struct $_ArrayBuffer<Any> (%555)         // user: %557
+  %557 = struct $Array<Any> (%556)                // user: %571
+  %558 = integer_literal $Builtin.Int64, 32       // user: %559
+  %559 = struct $UInt64 (%558)                    // user: %562
+  %560 = integer_literal $Builtin.Int64, -2233785415175766016 // user: %561
+  %561 = value_to_bridge_object %560              // users: %567, %562
+  %562 = struct $_StringObject (%559, %561)       // user: %563
+  %563 = struct $_StringGuts (%562)               // user: %564
+  %564 = struct $String (%563)                    // user: %571
+  %565 = integer_literal $Builtin.Int64, 10       // user: %566
+  %566 = struct $UInt64 (%565)                    // user: %567
+  %567 = struct $_StringObject (%566, %561)       // user: %568
+  %568 = struct $_StringGuts (%567)               // user: %569
+  %569 = struct $String (%568)                    // user: %571
+  // function_ref print(_:separator:terminator:)
+  %570 = function_ref @$ss5print_9separator10terminatoryypd_S2StF : $@convention(thin) (@guaranteed Array<Any>, @guaranteed String, @guaranteed String) -> () // user: %571
+  %571 = apply %570(%557, %564, %569) : $@convention(thin) (@guaranteed Array<Any>, @guaranteed String, @guaranteed String) -> ()
+  strong_release %553                             // id: %572
+  %573 = integer_literal $Builtin.Int32, 0        // user: %574
+  %574 = struct $Int32 (%573)                     // user: %575
+  return %574                                     // id: %575
+
+// %576                                           // user: %577
+bb62(%576 : $Builtin.Int64):                      // Preds: bb63 bb60
+  %577 = builtin "sadd_with_overflow_Int64"(%576, %45, %523) : $(Builtin.Int64, Builtin.Int1) // user: %578
+  %578 = tuple_extract %577, 0                    // users: %603, %601, %579
+  debug_value %578, var, name "$generator", type $IndexingIterator<Range<Int>>, expr op_fragment:#IndexingIterator._position:op_fragment:#Int._value // id: %579
+  %580 = begin_access [read] [static] [no_nested_conflict] %3 // users: %587, %581, %590
+  %581 = struct_element_addr %580, #Buffer.Linear.header // user: %582
+  %582 = struct_element_addr %581, #Buffer.Linear.Header.count // user: %583
+  %583 = struct_element_addr %582, #Tagged.underlying // user: %584
+  %584 = struct_element_addr %583, #Cardinal.rawValue // user: %585
+  %585 = struct_element_addr %584, #UInt._value   // user: %586
+  %586 = load %585                                // user: %591
+  %587 = struct_element_addr %580, #Buffer.Linear.storage // user: %588
+  %588 = struct_element_addr %587, #Storage.Heap._buffer // user: %589
+  %589 = load %588                                // user: %591
+  end_access %580                                 // id: %590
+  %591 = apply %524(%586, %589) : $@convention(thin) (Builtin.Int64, @guaranteed Storage<Int>.Heap.Buffer) -> Int // user: %592
+  %592 = struct_extract %591, #Int._value         // user: %596
+  %593 = begin_access [modify] [static] [no_nested_conflict] %517 // users: %599, %594, %600
+  %594 = struct_element_addr %593, #Int._value    // user: %595
+  %595 = load %594                                // user: %596
+  %596 = builtin "sadd_with_overflow_Int64"(%595, %592, %59) : $(Builtin.Int64, Builtin.Int1) // user: %597
+  %597 = tuple_extract %596, 0                    // user: %598
+  %598 = struct $Int (%597)                       // users: %552, %599
+  store %598 to %593                              // id: %599
+  end_access %593                                 // id: %600
+  %601 = builtin "cmp_eq_Int64"(%578, %519) : $Builtin.Int1 // user: %602
+  cond_br %601, bb61, bb63                        // id: %602
+
+bb63:                                             // Preds: bb62
+  br bb62(%578)                                   // id: %603
+} // end sil function 'main'
+
+// bufferProtocolSum<A>(_:)
+// Isolation: unspecified
+sil hidden [noinline] @$s4main17bufferProtocolSumySix07Buffer_C11_Primitives02__eC0RzSi7ElementRtzRi_zlF : $@convention(thin) <B where B : __BufferProtocol, B.Element == Int, B : ~Copyable> (@in_guaranteed B) -> Int {
+[%0: read v**, write v**, copy v**, destroy v**]
+[global: read,write,copy,destroy,allocate,deinit_barrier]
+// %0 "b"                                         // users: %25, %3, %13, %1
+bb0(%0 : $*B):
+  debug_value %0, let, name "b", argno 1, expr op_deref // id: %1
+  %2 = witness_method $B, #__BufferProtocol.count!getter : <Self where Self : Buffer_Protocol_Primitives.__BufferProtocol, Self : ~Copyable> (Self) -> () -> Tagged_Primitives.Tagged<Self.Element, Cardinal_Primitive.Cardinal> : $@convention(witness_method: __BufferProtocol) <τ_0_0 where τ_0_0 : __BufferProtocol, τ_0_0 : ~Copyable> (@in_guaranteed τ_0_0) -> Tagged<τ_0_0.Element, Cardinal> // user: %3
+  %3 = apply %2<B>(%0) : $@convention(witness_method: __BufferProtocol) <τ_0_0 where τ_0_0 : __BufferProtocol, τ_0_0 : ~Copyable> (@in_guaranteed τ_0_0) -> Tagged<τ_0_0.Element, Cardinal> // user: %5
+  %4 = integer_literal $Builtin.Int64, 0          // users: %19, %16, %10, %8
+  %5 = struct_extract %3, #Tagged.underlying      // user: %6
+  %6 = struct_extract %5, #Cardinal.rawValue      // user: %7
+  %7 = struct_extract %6, #UInt._value            // user: %8
+  %8 = builtin "cmp_eq_Int64"(%7, %4) : $Builtin.Int1 // user: %9
+  cond_br %8, bb1, bb2                            // id: %9
+
+bb1:                                              // Preds: bb0
+  %10 = struct $Int (%4)                          // user: %11
+  br bb5(%10)                                     // id: %11
+
+bb2:                                              // Preds: bb0
+  %12 = witness_method $B, #__BufferProtocol.isEmpty!getter : <Self where Self : Buffer_Protocol_Primitives.__BufferProtocol, Self : ~Copyable> (Self) -> () -> Bool : $@convention(witness_method: __BufferProtocol) <τ_0_0 where τ_0_0 : __BufferProtocol, τ_0_0 : ~Copyable> (@in_guaranteed τ_0_0) -> Bool // user: %13
+  %13 = apply %12<B>(%0) : $@convention(witness_method: __BufferProtocol) <τ_0_0 where τ_0_0 : __BufferProtocol, τ_0_0 : ~Copyable> (@in_guaranteed τ_0_0) -> Bool // user: %14
+  %14 = struct_extract %13, #Bool._value          // user: %15
+  cond_br %14, bb3, bb4                           // id: %15
+
+bb3:                                              // Preds: bb2
+  %16 = struct $Int (%4)                          // user: %17
+  br bb5(%16)                                     // id: %17
+
+bb4:                                              // Preds: bb2
+  %18 = alloc_stack [var_decl] $Int, var, name "total", type $Int // users: %28, %20, %22, %29
+  %19 = struct $Int (%4)                          // user: %20
+  store %19 to %18                                // id: %20
+  // function_ref closure #1 in bufferProtocolSum<A>(_:)
+  %21 = function_ref @$s4main17bufferProtocolSumySix07Buffer_C11_Primitives02__eC0RzSi7ElementRtzRi_zlFySiXEfU_ : $@convention(thin) @substituted <τ_0_0, τ_0_1> (@in_guaranteed τ_0_0, @inout_aliasable Int) -> @error_indirect τ_0_1 for <Int, Never> // user: %22
+  %22 = partial_apply [callee_guaranteed] [on_stack] %21(%18) : $@convention(thin) @substituted <τ_0_0, τ_0_1> (@in_guaranteed τ_0_0, @inout_aliasable Int) -> @error_indirect τ_0_1 for <Int, Never> // users: %27, %25
+  %23 = witness_method $B, #__BufferProtocol.forEach : <Self where Self : Buffer_Protocol_Primitives.__BufferProtocol, Self : ~Copyable><E where E : Error> (Self) -> ((borrowing Self.Element) throws(E) -> ()) throws(E) -> () : $@convention(witness_method: __BufferProtocol) <τ_0_0 where τ_0_0 : __BufferProtocol, τ_0_0 : ~Copyable><τ_1_0 where τ_1_0 : Error> (@guaranteed @noescape @callee_guaranteed @substituted <τ_0_0, τ_0_1> (@in_guaranteed τ_0_0) -> @error_indirect τ_0_1 for <τ_0_0.Element, τ_1_0>, @in_guaranteed τ_0_0) -> @error_indirect τ_1_0 // user: %25
+  %24 = alloc_stack $Never                        // users: %25, %26
+  %25 = apply [nothrow] %23<B, Never>(%24, %22, %0) : $@convention(witness_method: __BufferProtocol) <τ_0_0 where τ_0_0 : __BufferProtocol, τ_0_0 : ~Copyable><τ_1_0 where τ_1_0 : Error> (@guaranteed @noescape @callee_guaranteed @substituted <τ_0_0, τ_0_1> (@in_guaranteed τ_0_0) -> @error_indirect τ_0_1 for <τ_0_0.Element, τ_1_0>, @in_guaranteed τ_0_0) -> @error_indirect τ_1_0
+  dealloc_stack %24                               // id: %26
+  dealloc_stack %22                               // id: %27
+  %28 = load %18                                  // user: %30
+  dealloc_stack %18                               // id: %29
+  br bb5(%28)                                     // id: %30
+
+// %31                                            // user: %32
+bb5(%31 : $Int):                                  // Preds: bb4 bb3 bb1
+  return %31                                      // id: %32
+} // end sil function '$s4main17bufferProtocolSumySix07Buffer_C11_Primitives02__eC0RzSi7ElementRtzRi_zlF'
+
+// print(_:separator:terminator:)
+// Isolation: unspecified
+sil @$ss5print_9separator10terminatoryypd_S2StF : $@convention(thin) (@guaranteed Array<Any>, @guaranteed String, @guaranteed String) -> ()
+
+// closure #1 in bufferProtocolSum<A>(_:)
+// Isolation: nonisolated
+sil private @$s4main17bufferProtocolSumySix07Buffer_C11_Primitives02__eC0RzSi7ElementRtzRi_zlFySiXEfU_ : $@convention(thin) @substituted <τ_0_0, τ_0_1> (@in_guaranteed τ_0_0, @inout_aliasable Int) -> @error_indirect τ_0_1 for <Int, Never> {
+[%1: read s0.v**]
+[%2: read s0.v**, write v**]
+[global: ]
+// %0 "$error"
+// %1 "element"                                   // user: %3
+// %2 "total"                                     // users: %12, %6, %5
+bb0(%0 : $*Never, %1 : @noImplicitCopy $*Int, %2 : @closureCapture $*Int):
+  %3 = struct_element_addr %1, #Int._value        // user: %4
+  %4 = load %3                                    // user: %9
+  debug_value %2, var, name "total", argno 2, expr op_deref // id: %5
+  %6 = struct_element_addr %2, #Int._value        // user: %7
+  %7 = load %6                                    // user: %9
+  %8 = integer_literal $Builtin.Int1, 0           // user: %9
+  %9 = builtin "sadd_with_overflow_Int64"(%7, %4, %8) : $(Builtin.Int64, Builtin.Int1) // user: %10
+  %10 = tuple_extract %9, 0                       // user: %11
+  %11 = struct $Int (%10)                         // user: %12
+  store %11 to %2                                 // id: %12
+  %13 = tuple ()                                  // user: %14
+  return %13                                      // id: %14
+} // end sil function '$s4main17bufferProtocolSumySix07Buffer_C11_Primitives02__eC0RzSi7ElementRtzRi_zlFySiXEfU_'
+
+// Array._endMutation()
+sil shared [_semantics "array.end_mutation"] [_specialize exported: true, kind: full, available: 14.0, where  @_noMetadata Element : _Class] @$sSa12_endMutationyyF : $@convention(method) <Element> (@inout Array<Element>) -> () {
+[%0: noescape! **, read s0.s0.s0.v**, write v**]
+[global: ]
+// %0                                             // users: %9, %1
+bb0(%0 : $*Array<Element>):
+  %1 = struct_element_addr %0, #Array._buffer     // user: %2
+  %2 = struct_element_addr %1, #_ArrayBuffer._storage // user: %3
+  %3 = struct_element_addr %2, #_BridgeStorage.rawValue // user: %4
+  %4 = load %3                                    // user: %5
+  %5 = end_cow_mutation %4                        // user: %6
+  %6 = struct $_BridgeStorage<__ContiguousArrayStorageBase> (%5) // user: %7
+  %7 = struct $_ArrayBuffer<Element> (%6)         // user: %8
+  %8 = struct $Array<Element> (%7)                // user: %9
+  store %8 to %0                                  // id: %9
+  %10 = tuple ()                                  // user: %11
+  return %10                                      // id: %11
+} // end sil function '$sSa12_endMutationyyF'
+
+// __SwiftNativeNSArrayWithContiguousStorage.__allocating_init()
+sil public_external [exact_self_class] @$ss41__SwiftNativeNSArrayWithContiguousStorageCABycfC : $@convention(method) (@thick __SwiftNativeNSArrayWithContiguousStorage.Type) -> @owned __SwiftNativeNSArrayWithContiguousStorage {
+bb0(%0 : $@thick __SwiftNativeNSArrayWithContiguousStorage.Type):
+  %1 = alloc_ref $__SwiftNativeNSArrayWithContiguousStorage // user: %2
+  %2 = upcast %1 to $__SwiftNativeNSArray         // user: %3
+  %3 = end_init_let_ref %2                        // user: %4
+  %4 = unchecked_ref_cast %3 to $__SwiftNativeNSArrayWithContiguousStorage // user: %5
+  return %4                                       // id: %5
+} // end sil function '$ss41__SwiftNativeNSArrayWithContiguousStorageCABycfC'
+
+// _ContiguousArrayStorage.__allocating_init(_doNotCallMeBase:)
+sil public_external [exact_self_class] @$ss23_ContiguousArrayStorageC16_doNotCallMeBaseAByxGyt_tcfC : $@convention(method) <Element> (@thick _ContiguousArrayStorage<Element>.Type) -> @owned _ContiguousArrayStorage<Element> {
+bb0(%0 : $@thick _ContiguousArrayStorage<Element>.Type):
+  %1 = alloc_ref $_ContiguousArrayStorage<Element> // user: %3
+  // function_ref _ContiguousArrayStorage.init(_doNotCallMeBase:)
+  %2 = function_ref @$ss23_ContiguousArrayStorageC16_doNotCallMeBaseAByxGyt_tcfc : $@convention(method) <τ_0_0> (@owned _ContiguousArrayStorage<τ_0_0>) -> @owned _ContiguousArrayStorage<τ_0_0> // user: %3
+  %3 = apply %2<Element>(%1) : $@convention(method) <τ_0_0> (@owned _ContiguousArrayStorage<τ_0_0>) -> @owned _ContiguousArrayStorage<τ_0_0> // user: %4
+  return %3                                       // id: %4
+} // end sil function '$ss23_ContiguousArrayStorageC16_doNotCallMeBaseAByxGyt_tcfC'
+
+// _ContiguousArrayStorage.canStoreElements(ofDynamicType:)
+sil public_external @$ss23_ContiguousArrayStorageC16canStoreElements13ofDynamicTypeSbypXp_tF : $@convention(method) <Element> (@thick any Any.Type, @guaranteed _ContiguousArrayStorage<Element>) -> Bool {
+[%1: noescape **]
+// %0                                             // user: %2
+bb0(%0 : $@thick any Any.Type, %1 : $_ContiguousArrayStorage<Element>):
+  checked_cast_br any Any.Type in %0 to Element.Type, bb2, bb1 // id: %2
+
+bb1:                                              // Preds: bb0
+  %3 = integer_literal $Builtin.Int1, 0           // user: %4
+  br bb3(%3)                                      // id: %4
+
+bb2(%5 : $@thick Element.Type):                   // Preds: bb0
+  %6 = integer_literal $Builtin.Int1, -1          // user: %7
+  br bb3(%6)                                      // id: %7
+
+// %8                                             // user: %9
+bb3(%8 : $Builtin.Int1):                          // Preds: bb2 bb1
+  %9 = struct $Bool (%8)                          // user: %10
+  return %9                                       // id: %10
+} // end sil function '$ss23_ContiguousArrayStorageC16canStoreElements13ofDynamicTypeSbypXp_tF'
+
+// _ContiguousArrayStorage.staticElementType.getter
+sil public_external @$ss23_ContiguousArrayStorageC17staticElementTypeypXpvg : $@convention(method) <Element> (@guaranteed _ContiguousArrayStorage<Element>) -> @thick any Any.Type {
+[%0: noescape **]
+bb0(%0 : $_ContiguousArrayStorage<Element>):
+  %1 = metatype $@thick Element.Type              // user: %2
+  %2 = init_existential_metatype %1, $@thick any Any.Type // user: %3
+  return %2                                       // id: %3
+} // end sil function '$ss23_ContiguousArrayStorageC17staticElementTypeypXpvg'
+
+// _ContiguousArrayStorage.__deallocating_deinit
+sil public_external @$ss23_ContiguousArrayStorageCfD : $@convention(method) <Element> (@owned _ContiguousArrayStorage<Element>) -> () {
+[%0: noescape, noescape c*.v**]
+// %0                                             // user: %2
+bb0(%0 : $_ContiguousArrayStorage<Element>):
+  // function_ref _ContiguousArrayStorage.deinit
+  %1 = function_ref @$ss23_ContiguousArrayStorageCfd : $@convention(method) <τ_0_0> (@guaranteed _ContiguousArrayStorage<τ_0_0>) -> @owned Builtin.NativeObject // user: %2
+  %2 = apply %1<Element>(%0) : $@convention(method) <τ_0_0> (@guaranteed _ContiguousArrayStorage<τ_0_0>) -> @owned Builtin.NativeObject // user: %3
+  %3 = unchecked_ref_cast %2 to $_ContiguousArrayStorage<Element> // user: %4
+  dealloc_ref %3                                  // id: %4
+  %5 = tuple ()                                   // user: %6
+  return %5                                       // id: %6
+} // end sil function '$ss23_ContiguousArrayStorageCfD'
+
+// __ContiguousArrayStorageBase.__allocating_init(_doNotCallMeBase:)
+sil public_external [exact_self_class] @$ss28__ContiguousArrayStorageBaseC012_doNotCallMeD0AByt_tcfC : $@convention(method) (@thick __ContiguousArrayStorageBase.Type) -> @owned __ContiguousArrayStorageBase {
+bb0(%0 : $@thick __ContiguousArrayStorageBase.Type):
+  unreachable                                     // id: %1
+} // end sil function '$ss28__ContiguousArrayStorageBaseC012_doNotCallMeD0AByt_tcfC'
+
+// __ContiguousArrayStorageBase.canStoreElements(ofDynamicType:)
+sil public_external @$ss28__ContiguousArrayStorageBaseC16canStoreElements13ofDynamicTypeSbypXp_tF : $@convention(method) (@thick any Any.Type, @guaranteed __ContiguousArrayStorageBase) -> Bool {
+[%1: noescape **]
+bb0(%0 : $@thick any Any.Type, %1 : $__ContiguousArrayStorageBase):
+  unreachable                                     // id: %2
+} // end sil function '$ss28__ContiguousArrayStorageBaseC16canStoreElements13ofDynamicTypeSbypXp_tF'
+
+// __ContiguousArrayStorageBase.staticElementType.getter
+sil public_external @$ss28__ContiguousArrayStorageBaseC17staticElementTypeypXpvg : $@convention(method) (@guaranteed __ContiguousArrayStorageBase) -> @thick any Any.Type {
+[%0: noescape **]
+bb0(%0 : $__ContiguousArrayStorageBase):
+  unreachable                                     // id: %1
+} // end sil function '$ss28__ContiguousArrayStorageBaseC17staticElementTypeypXpvg'
+
+// __ContiguousArrayStorageBase.__deallocating_deinit
+sil public_external @$ss28__ContiguousArrayStorageBaseCfD : $@convention(method) (@owned __ContiguousArrayStorageBase) -> () {
+[%0: noescape **]
+// %0                                             // user: %1
+bb0(%0 : $__ContiguousArrayStorageBase):
+  dealloc_ref %0                                  // id: %1
+  %2 = tuple ()                                   // user: %3
+  return %2                                       // id: %3
+} // end sil function '$ss28__ContiguousArrayStorageBaseCfD'
+
+// __SwiftNativeNSArrayWithContiguousStorage.__deallocating_deinit
+sil public_external @$ss41__SwiftNativeNSArrayWithContiguousStorageCfD : $@convention(method) (@owned __SwiftNativeNSArrayWithContiguousStorage) -> () {
+[%0: noescape **]
+// %0                                             // user: %1
+bb0(%0 : $__SwiftNativeNSArrayWithContiguousStorage):
+  dealloc_ref %0                                  // id: %1
+  %2 = tuple ()                                   // user: %3
+  return %2                                       // id: %3
+} // end sil function '$ss41__SwiftNativeNSArrayWithContiguousStorageCfD'
+
+// __SwiftNativeNSArray.__allocating_init()
+sil public_external [exact_self_class] @$ss20__SwiftNativeNSArrayCABycfC : $@convention(method) (@thick __SwiftNativeNSArray.Type) -> @owned __SwiftNativeNSArray {
+bb0(%0 : $@thick __SwiftNativeNSArray.Type):
+  %1 = alloc_ref $__SwiftNativeNSArray            // user: %2
+  %2 = end_init_let_ref %1                        // user: %3
+  return %2                                       // id: %3
+} // end sil function '$ss20__SwiftNativeNSArrayCABycfC'
+
+// __SwiftNativeNSArray.__deallocating_deinit
+sil public_external @$ss20__SwiftNativeNSArrayCfD : $@convention(method) (@owned __SwiftNativeNSArray) -> () {
+[%0: noescape **]
+// %0                                             // user: %1
+bb0(%0 : $__SwiftNativeNSArray):
+  dealloc_ref %0                                  // id: %1
+  %2 = tuple ()                                   // user: %3
+  return %2                                       // id: %3
+} // end sil function '$ss20__SwiftNativeNSArrayCfD'
+
+// _ContiguousArrayStorage.init(_doNotCallMeBase:)
+sil @$ss23_ContiguousArrayStorageC16_doNotCallMeBaseAByxGyt_tcfc : $@convention(method) <τ_0_0> (@owned _ContiguousArrayStorage<τ_0_0>) -> @owned _ContiguousArrayStorage<τ_0_0>
+
+// _ContiguousArrayStorage.deinit
+sil public_external @$ss23_ContiguousArrayStorageCfd : $@convention(method) <Element> (@guaranteed _ContiguousArrayStorage<Element>) -> @owned Builtin.NativeObject {
+[%0: escape => %r, escape c*.v** => %r.c*.v**]
+// %0                                             // users: %14, %13, %3, %2
+bb0(%0 : $_ContiguousArrayStorage<Element>):
+  // function_ref _ContiguousArrayStorage._elementPointer.getter
+  %1 = function_ref @$ss23_ContiguousArrayStorageC15_elementPointerSpyxGvg : $@convention(method) <τ_0_0> (@guaranteed _ContiguousArrayStorage<τ_0_0>) -> UnsafeMutablePointer<τ_0_0> // user: %2
+  %2 = apply %1<Element>(%0) : $@convention(method) <τ_0_0> (@guaranteed _ContiguousArrayStorage<τ_0_0>) -> UnsafeMutablePointer<τ_0_0> // user: %12
+  %3 = upcast %0 to $__ContiguousArrayStorageBase // user: %4
+  %4 = ref_element_addr %3, #__ContiguousArrayStorageBase.countAndCapacity // user: %5
+  %5 = struct_element_addr %4, #_ArrayBody._storage // user: %6
+  %6 = struct_element_addr %5, #_SwiftArrayBodyStorage.count // user: %7
+  %7 = struct_element_addr %6, #Int._value        // user: %8
+  %8 = load %7                                    // user: %9
+  %9 = builtin "assumeNonNegative_Int64"(%8) : $Builtin.Int64 // user: %10
+  %10 = struct $Int (%9)                          // user: %12
+  // function_ref UnsafeMutablePointer.deinitialize(count:)
+  %11 = function_ref @$sSp12deinitialize5countSvSi_tF : $@convention(method) <τ_0_0 where τ_0_0 : ~Copyable> (Int, UnsafeMutablePointer<τ_0_0>) -> UnsafeMutableRawPointer // user: %12
+  %12 = apply %11<Element>(%10, %2) : $@convention(method) <τ_0_0 where τ_0_0 : ~Copyable> (Int, UnsafeMutablePointer<τ_0_0>) -> UnsafeMutableRawPointer
+  fix_lifetime %0                                 // id: %13
+  %14 = unchecked_ref_cast %0 to $Builtin.NativeObject // user: %15
+  return %14                                      // id: %15
+} // end sil function '$ss23_ContiguousArrayStorageCfd'
+
+// _ContiguousArrayStorage._elementPointer.getter
+sil public_external @$ss23_ContiguousArrayStorageC15_elementPointerSpyxGvg : $@convention(method) <Element> (@guaranteed _ContiguousArrayStorage<Element>) -> UnsafeMutablePointer<Element> {
+[%0: noescape, escape c*.v** => %r.s0.v**]
+// %0                                             // user: %1
+bb0(%0 : $_ContiguousArrayStorage<Element>):
+  %1 = ref_tail_addr %0, $Element                 // user: %2
+  %2 = address_to_pointer %1 to $Builtin.RawPointer // user: %3
+  %3 = struct $UnsafeMutablePointer<Element> (%2) // user: %4
+  return %3                                       // id: %4
+} // end sil function '$ss23_ContiguousArrayStorageC15_elementPointerSpyxGvg'
+
+// UnsafeMutablePointer.deinitialize(count:)
+sil public_external @$sSp12deinitialize5countSvSi_tF : $@convention(method) <Pointee where Pointee : ~Copyable> (Int, UnsafeMutablePointer<Pointee>) -> UnsafeMutableRawPointer {
+[%1: escape v** => %r.s0.v**]
+// %0                                             // user: %3
+// %1                                             // user: %2
+bb0(%0 : $Int, %1 : $UnsafeMutablePointer<Pointee>):
+  %2 = struct_extract %1, #UnsafeMutablePointer._rawValue // users: %7, %6
+  %3 = struct_extract %0, #Int._value             // user: %4
+  %4 = builtin "truncOrBitCast_Int64_Word"(%3) : $Builtin.Word // user: %6
+  %5 = metatype $@thin Pointee.Type               // user: %6
+  %6 = builtin "destroyArray"<Pointee>(%5, %2, %4) : $()
+  %7 = struct $UnsafeMutableRawPointer (%2)       // user: %8
+  return %7                                       // id: %8
+} // end sil function '$sSp12deinitialize5countSvSi_tF'
+
+// @objc _swift_stdlib_malloc_size(_:)
+// clang name: _swift_stdlib_malloc_size
+sil shared [asmname "_swift_stdlib_malloc_size"] [clang _swift_stdlib_malloc_size] @$sSo25_swift_stdlib_malloc_sizeySiSVFTo : $@convention(c) (UnsafeRawPointer) -> Int
+
+// ManagedBuffer.__allocating_init(_doNotCallMe:)
+sil public_external @$ss13ManagedBufferC12_doNotCallMeAByxq_Gyt_tcfC : $@convention(method) <Header, Element where Element : ~Copyable> (@thick ManagedBuffer<Header, Element>.Type) -> @owned ManagedBuffer<Header, Element> {
+bb0(%0 : $@thick ManagedBuffer<Header, Element>.Type):
+  %1 = alloc_ref $ManagedBuffer<Header, Element>  // user: %3
+  // function_ref ManagedBuffer.init(_doNotCallMe:)
+  %2 = function_ref @$ss13ManagedBufferC12_doNotCallMeAByxq_Gyt_tcfc : $@convention(method) <τ_0_0, τ_0_1 where τ_0_1 : ~Copyable> (@owned ManagedBuffer<τ_0_0, τ_0_1>) -> @owned ManagedBuffer<τ_0_0, τ_0_1> // user: %3
+  %3 = apply %2<Header, Element>(%1) : $@convention(method) <τ_0_0, τ_0_1 where τ_0_1 : ~Copyable> (@owned ManagedBuffer<τ_0_0, τ_0_1>) -> @owned ManagedBuffer<τ_0_0, τ_0_1> // user: %4
+  return %3                                       // id: %4
+} // end sil function '$ss13ManagedBufferC12_doNotCallMeAByxq_Gyt_tcfC'
+
+// Storage<>.Heap<>.Buffer.__deallocating_deinit
+sil public_external @$s17Storage_Primitive0A0O0A16_Heap_PrimitivesRi_zrlE0C0VADRi_zrlE6BufferCfD : $@convention(method) <Element where Element : ~Copyable> (@owned Storage<Element>.Heap.Buffer) -> () {
+[%0: read c*.v**, write c*.v**, copy c*.v**, destroy c*.v**]
+[global: read,write,copy,destroy,allocate,deinit_barrier]
+// %0                                             // user: %2
+bb0(%0 : $Storage<Element>.Heap.Buffer):
+  // function_ref Storage<>.Heap<>.Buffer.deinit
+  %1 = function_ref @$s17Storage_Primitive0A0O0A16_Heap_PrimitivesRi_zrlE0C0VADRi_zrlE6BufferCfd : $@convention(method) <τ_0_0 where τ_0_0 : ~Copyable> (@guaranteed Storage<τ_0_0>.Heap.Buffer) -> @owned Builtin.NativeObject // user: %2
+  %2 = apply %1<Element>(%0) : $@convention(method) <τ_0_0 where τ_0_0 : ~Copyable> (@guaranteed Storage<τ_0_0>.Heap.Buffer) -> @owned Builtin.NativeObject // user: %3
+  %3 = unchecked_ref_cast %2 to $Storage<Element>.Heap.Buffer // user: %4
+  dealloc_ref %3                                  // id: %4
+  %5 = tuple ()                                   // user: %6
+  return %5                                       // id: %6
+} // end sil function '$s17Storage_Primitive0A0O0A16_Heap_PrimitivesRi_zrlE0C0VADRi_zrlE6BufferCfD'
+
+// ManagedBuffer.__deallocating_deinit
+sil public_external @$ss13ManagedBufferCfD : $@convention(method) <Header, Element where Element : ~Copyable> (@owned ManagedBuffer<Header, Element>) -> () {
+[%0: noescape, noescape c*.v**]
+// %0                                             // user: %2
+bb0(%0 : $ManagedBuffer<Header, Element>):
+  // function_ref ManagedBuffer.deinit
+  %1 = function_ref @$ss13ManagedBufferCfd : $@convention(method) <τ_0_0, τ_0_1 where τ_0_1 : ~Copyable> (@guaranteed ManagedBuffer<τ_0_0, τ_0_1>) -> @owned Builtin.NativeObject // user: %2
+  %2 = apply %1<Header, Element>(%0) : $@convention(method) <τ_0_0, τ_0_1 where τ_0_1 : ~Copyable> (@guaranteed ManagedBuffer<τ_0_0, τ_0_1>) -> @owned Builtin.NativeObject // user: %3
+  %3 = unchecked_ref_cast %2 to $ManagedBuffer<Header, Element> // user: %4
+  dealloc_ref %3                                  // id: %4
+  %5 = tuple ()                                   // user: %6
+  return %5                                       // id: %6
+} // end sil function '$ss13ManagedBufferCfD'
+
+// ManagedBuffer.init(_doNotCallMe:)
+sil @$ss13ManagedBufferC12_doNotCallMeAByxq_Gyt_tcfc : $@convention(method) <τ_0_0, τ_0_1 where τ_0_1 : ~Copyable> (@owned ManagedBuffer<τ_0_0, τ_0_1>) -> @owned ManagedBuffer<τ_0_0, τ_0_1>
+
+// Storage<>.Heap<>.Buffer.deinit
+sil @$s17Storage_Primitive0A0O0A16_Heap_PrimitivesRi_zrlE0C0VADRi_zrlE6BufferCfd : $@convention(method) <τ_0_0 where τ_0_0 : ~Copyable> (@guaranteed Storage<τ_0_0>.Heap.Buffer) -> @owned Builtin.NativeObject {
+[%0: read c*.v**, write c*.v**, copy c*.v**, destroy c*.v**]
+[global: read,write,copy,destroy,allocate,deinit_barrier]
+} // end sil function '$s17Storage_Primitive0A0O0A16_Heap_PrimitivesRi_zrlE0C0VADRi_zrlE6BufferCfd'
+
+// ManagedBuffer.deinit
+sil public_external @$ss13ManagedBufferCfd : $@convention(method) <Header, Element where Element : ~Copyable> (@guaranteed ManagedBuffer<Header, Element>) -> @owned Builtin.NativeObject {
+[%0: escape => %r, escape c*.v** => %r.c*.v**]
+// %0                                             // users: %3, %1
+bb0(%0 : $ManagedBuffer<Header, Element>):
+  %1 = ref_element_addr %0, #ManagedBuffer.header // user: %2
+  destroy_addr %1                                 // id: %2
+  %3 = unchecked_ref_cast %0 to $Builtin.NativeObject // user: %4
+  return %3                                       // id: %4
+} // end sil function '$ss13ManagedBufferCfd'
+
+// specialized bufferProtocolSum<A>(_:)
+sil shared [noinline] @$s4main17bufferProtocolSumySix07Buffer_C11_Primitives02__eC0RzSi7ElementRtzRi_zlF0E10_Primitive0E0O0e8_Linear_H0Ri_zrlE0I0VySi_G_Tg5Tf4x_n : $@convention(thin) (Builtin.Int64, @guaranteed Storage<Int>.Heap.Buffer) -> Int {
+[%1: noescape **, read c*.v**, write c*.v**, copy c*.v**]
+[global: read,write,copy]
+// %0 "b"                                         // users: %3, %14
+// %1 "b"                                         // user: %17
+bb0(%0 : $Builtin.Int64, %1 : $Storage<Int>.Heap.Buffer):
+  %2 = integer_literal $Builtin.Int64, 0          // users: %5, %11, %11, %9, %10, %3
+  %3 = builtin "cmp_eq_Int64"(%0, %2) : $Builtin.Int1 // user: %4
+  cond_br %3, bb1, bb3                            // id: %4
+
+bb1:                                              // Preds: bb0
+  br bb2(%2)                                      // id: %5
+
+// %6                                             // user: %7
+bb2(%6 : $Builtin.Int64):                         // Preds: bb5 bb1
+  %7 = struct $Int (%6)                           // user: %8
+  return %7                                       // id: %8
+
+bb3:                                              // Preds: bb0
+  debug_value %2, var, name "total", type $Int, expr op_fragment:#Int._value // id: %9
+  debug_value %2, var, name "total", argno 2, type $Int, expr op_fragment:#Int._value // id: %10
+  br bb4(%2, %2)                                  // id: %11
+
+// %12                                            // users: %44, %19, %14
+// %13                                            // users: %16, %25
+bb4(%12 : $Builtin.Int64, %13 : $Builtin.Int64):  // Preds: bb3 bb6
+  %14 = builtin "cmp_ult_Int64"(%12, %0) : $Builtin.Int1 // user: %15
+  cond_br %14, bb6, bb5                           // id: %15
+
+bb5:                                              // Preds: bb4
+  br bb2(%13)                                     // id: %16
+
+bb6:                                              // Preds: bb4
+  %17 = upcast %1 to $ManagedBuffer<Storage<Int>.Heap.Header, Int> // users: %21, %18
+  %18 = ref_tail_addr %17, $Int                   // user: %20
+  %19 = builtin "truncOrBitCast_Int64_Word"(%12) : $Builtin.Word // user: %20
+  %20 = index_addr [stack_protection] %18, %19    // user: %22
+  fix_lifetime %17                                // id: %21
+  %22 = struct_element_addr %20, #Int._value      // user: %23
+  %23 = load %22                                  // user: %25
+  %24 = integer_literal $Builtin.Int1, 0          // user: %25
+  %25 = builtin "sadd_with_overflow_Int64"(%13, %23, %24) : $(Builtin.Int64, Builtin.Int1) // user: %26
+  %26 = tuple_extract %25, 0                      // users: %48, %27, %28
+  debug_value %26, var, name "total", type $Int, expr op_fragment:#Int._value // id: %27
+  debug_value %26, var, name "total", argno 2, type $Int, expr op_fragment:#Int._value // id: %28
+  %29 = integer_literal $Builtin.Int64, 1         // user: %30
+  %30 = struct $UInt (%29)                        // user: %31
+  %31 = struct $Cardinal (%30)                    // users: %36, %32
+  %32 = struct $Tagged<Int, Cardinal> (%31)       // user: %34
+  %33 = alloc_stack $Tagged<Int, Cardinal>        // users: %42, %37, %34
+  store %32 to %33                                // id: %34
+  %35 = alloc_stack $Cardinal                     // users: %41, %38, %37, %36
+  store %31 to %35                                // id: %36
+  mark_dependence_addr [nonescaping] %35 on %33   // id: %37
+  %38 = struct_element_addr %35, #Cardinal.rawValue // user: %39
+  %39 = struct_element_addr %38, #UInt._value     // user: %40
+  %40 = load %39                                  // user: %44
+  dealloc_stack %35                               // id: %41
+  dealloc_stack %33                               // id: %42
+  %43 = integer_literal $Builtin.Int1, -1         // user: %44
+  %44 = builtin "uadd_with_overflow_Int64"(%12, %40, %43) : $(Builtin.Int64, Builtin.Int1) // users: %46, %45
+  %45 = tuple_extract %44, 0                      // user: %48
+  %46 = tuple_extract %44, 1                      // user: %47
+  cond_fail %46, "arithmetic overflow"            // id: %47
+  br bb4(%45, %26)                                // id: %48
+} // end sil function '$s4main17bufferProtocolSumySix07Buffer_C11_Primitives02__eC0RzSi7ElementRtzRi_zlF0E10_Primitive0E0O0e8_Linear_H0Ri_zrlE0I0VySi_G_Tg5Tf4x_n'
+
+sil_vtable _ContiguousArrayStorage {
+  #__SwiftNativeNSArray.init!allocator: (__SwiftNativeNSArray.Type) -> () -> __SwiftNativeNSArray : @$ss41__SwiftNativeNSArrayWithContiguousStorageCABycfC [inherited]	// __SwiftNativeNSArrayWithContiguousStorage.__allocating_init()
+  #__ContiguousArrayStorageBase.init!allocator: (__ContiguousArrayStorageBase.Type) -> (()) -> __ContiguousArrayStorageBase : @$ss23_ContiguousArrayStorageC16_doNotCallMeBaseAByxGyt_tcfC [override]	// _ContiguousArrayStorage.__allocating_init(_doNotCallMeBase:)
+  #__ContiguousArrayStorageBase.canStoreElements: (__ContiguousArrayStorageBase) -> (any Any.Type) -> Bool : @$ss23_ContiguousArrayStorageC16canStoreElements13ofDynamicTypeSbypXp_tF [override]	// _ContiguousArrayStorage.canStoreElements(ofDynamicType:)
+  #__ContiguousArrayStorageBase.staticElementType!getter: (__ContiguousArrayStorageBase) -> () -> any Any.Type : @$ss23_ContiguousArrayStorageC17staticElementTypeypXpvg [override]	// _ContiguousArrayStorage.staticElementType.getter
+  #_ContiguousArrayStorage.deinit!deallocator: @$ss23_ContiguousArrayStorageCfD	// _ContiguousArrayStorage.__deallocating_deinit
+}
+
+sil_vtable __ContiguousArrayStorageBase {
+  #__SwiftNativeNSArray.init!allocator: (__SwiftNativeNSArray.Type) -> () -> __SwiftNativeNSArray : @$ss41__SwiftNativeNSArrayWithContiguousStorageCABycfC [inherited]	// __SwiftNativeNSArrayWithContiguousStorage.__allocating_init()
+  #__ContiguousArrayStorageBase.init!allocator: (__ContiguousArrayStorageBase.Type) -> (()) -> __ContiguousArrayStorageBase : @$ss28__ContiguousArrayStorageBaseC012_doNotCallMeD0AByt_tcfC	// __ContiguousArrayStorageBase.__allocating_init(_doNotCallMeBase:)
+  #__ContiguousArrayStorageBase.canStoreElements: (__ContiguousArrayStorageBase) -> (any Any.Type) -> Bool : @$ss28__ContiguousArrayStorageBaseC16canStoreElements13ofDynamicTypeSbypXp_tF	// __ContiguousArrayStorageBase.canStoreElements(ofDynamicType:)
+  #__ContiguousArrayStorageBase.staticElementType!getter: (__ContiguousArrayStorageBase) -> () -> any Any.Type : @$ss28__ContiguousArrayStorageBaseC17staticElementTypeypXpvg	// __ContiguousArrayStorageBase.staticElementType.getter
+  #__ContiguousArrayStorageBase.deinit!deallocator: @$ss28__ContiguousArrayStorageBaseCfD	// __ContiguousArrayStorageBase.__deallocating_deinit
+}
+
+sil_vtable __SwiftNativeNSArrayWithContiguousStorage {
+  #__SwiftNativeNSArray.init!allocator: (__SwiftNativeNSArray.Type) -> () -> __SwiftNativeNSArray : @$ss41__SwiftNativeNSArrayWithContiguousStorageCABycfC [override]	// __SwiftNativeNSArrayWithContiguousStorage.__allocating_init()
+  #__SwiftNativeNSArrayWithContiguousStorage.deinit!deallocator: @$ss41__SwiftNativeNSArrayWithContiguousStorageCfD	// __SwiftNativeNSArrayWithContiguousStorage.__deallocating_deinit
+}
+
+sil_vtable __SwiftNativeNSArray {
+  #__SwiftNativeNSArray.init!allocator: (__SwiftNativeNSArray.Type) -> () -> __SwiftNativeNSArray : @$ss20__SwiftNativeNSArrayCABycfC	// __SwiftNativeNSArray.__allocating_init()
+  #__SwiftNativeNSArray.deinit!deallocator: @$ss20__SwiftNativeNSArrayCfD	// __SwiftNativeNSArray.__deallocating_deinit
+}
+
+sil_vtable Buffer {
+  #ManagedBuffer.init!allocator: <Header, Element where Element : ~Copyable> (ManagedBuffer<Header, Element>.Type) -> (()) -> ManagedBuffer<Header, Element> : @$ss13ManagedBufferC12_doNotCallMeAByxq_Gyt_tcfC [inherited]	// ManagedBuffer.__allocating_init(_doNotCallMe:)
+  #Storage.Heap.Buffer.deinit!deallocator: @$s17Storage_Primitive0A0O0A16_Heap_PrimitivesRi_zrlE0C0VADRi_zrlE6BufferCfD	// Storage<>.Heap<>.Buffer.__deallocating_deinit
+}
+
+sil_vtable ManagedBuffer {
+  #ManagedBuffer.init!allocator: <Header, Element where Element : ~Copyable> (ManagedBuffer<Header, Element>.Type) -> (()) -> ManagedBuffer<Header, Element> : @$ss13ManagedBufferC12_doNotCallMeAByxq_Gyt_tcfC	// ManagedBuffer.__allocating_init(_doNotCallMe:)
+  #ManagedBuffer.deinit!deallocator: @$ss13ManagedBufferCfD	// ManagedBuffer.__deallocating_deinit
+}
+
+
+
+// Mappings from '#fileID' to '#filePath':
+//   'main/main.swift' => '/Users/coen/Developer/swift-primitives/swift-buffer-linear-primitives/Sources/Buffer Protocol SIL Probe/main.swift'
+
+

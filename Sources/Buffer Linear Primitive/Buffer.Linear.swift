@@ -1,117 +1,49 @@
-public import Storage_Primitive
-import Ordinal_Primitives_Standard_Library_Integration
 import Affine_Primitives_Standard_Library_Integration
-public import Storage_Heap_Primitives
 import Index_Primitives
+import Ordinal_Primitives_Standard_Library_Integration
+import Storage_Contiguous_Primitives
+import Storage_Primitive
+public import Storage_Protocol_Primitives
+public import Store_Protocol_Primitives
 
-extension Buffer where Element: ~Copyable {
+extension Buffer where S: Store.`Protocol`, S: ~Copyable {
 
     /// A growable linear buffer backed by heap storage.
     ///
     /// Provides append and consume operations with automatic capacity growth.
     /// Elements are stored contiguously at slots `0 ..< count`.
     ///
-    /// `storage.initialization` is kept in sync with header state,
-    /// so `Storage.Heap`'s own deinit handles cleanup automatically.
+    /// The storage's seam ops self-maintain its initialization ledger, so the backing's own
+    /// deinit oracle handles cleanup automatically.
+    @frozen
     public struct Linear: ~Copyable {
-        // MARK: - Header
-
-        /// Pure cursor state for a linear (contiguous) buffer.
-        ///
-        /// Linear buffers store elements at slots `0 ..< count`. The header tracks
-        /// the current element count and total capacity.
-        ///
-        /// Initialization is always `.one(idx(0) ..< idx(count))` — a single
-        /// contiguous range starting at zero.
-        public struct Header: Copyable, Sendable {
-            /// Number of initialized elements.
-            public var count: Index<Element>.Count
-
-            /// Total slot capacity.
-            public let capacity: Index<Element>.Count
-
-            /// Creates a header with the given capacity and zero elements.
-            @inlinable
-            public init(capacity: Index<Element>.Count) {
-                self.count = .zero
-                self.capacity = capacity
-            }
-        }
-
-        // MARK: - Inline (Fixed-Capacity, Stack-Allocated)
-
-        // WORKAROUND: Inline defined in Linear's struct body (not via extension)
-        // to avoid the LLVM verifier crash triggered by the extension-file
-        // pattern for @_rawLayout + deinit types under -O.
-        // WHEN TO REMOVE: When swiftlang/swift fixes the LLVM verifier crash
-        //      for @_rawLayout + deinit under -O.
-        // TRACKING: Research/release-mode-llvm-verifier-crash-diagnosis.md
-
-        /// A fixed-capacity linear buffer backed by inline (stack-allocated) storage.
-        ///
-        /// Uses `Storage<Element>.Inline<capacity>` for stack-based allocation
-        /// and the runtime `Header` for linear state tracking.
-        ///
-        /// Element cleanup is handled by deinit, which iterates the
-        /// per-slot bitvector in `Storage.Inline` to deinitialize all
-        /// initialized elements.
-        public struct Inline<let capacity: Int>: ~Copyable {
-            @usableFromInline
-            package var header: Header
-
-            @usableFromInline
-            package var storage: Storage<Element>.Inline<capacity>
-
-            @inlinable
-            package init(header: Header, storage: consuming Storage<Element>.Inline<capacity>) {
-                self.header = header
-                self.storage = storage
-            }
-
-            // WORKAROUND: deinit commented out due to swiftlang/swift#86652.
-            // Elements LEAK if a non-empty Linear.Inline is dropped without
-            // draining. Affects class-typed and ~Copyable elements only.
-            //
-            // Combined @_rawLayout approach works for `internal` types but
-            // crashes for `public` types. Blocked until compiler bug is fixed.
-            // TRACKING: Research/rawlayout-release-crash-investigation.md
-            //
-            // deinit {
-            //     unsafe storage.deinitialize()
-            // }
-
-            /// Errors that can occur during inline linear buffer operations.
-            public enum Error: Swift.Error, Sendable, Equatable {
-                /// The number of elements exceeds the buffer's capacity.
-                case capacityExceeded
-            }
-        }
 
         // MARK: - Linear Fields
 
         @usableFromInline
-        package var header: Header
+        var header: Header
 
         @usableFromInline
-        package var storage: Storage<Element>.Heap
+        var storage: S
 
         @inlinable
-        package init(header: Header, storage: Storage<Element>.Heap) {
+        package init(header: Header, storage: consuming S) {
             self.header = header
             self.storage = storage
         }
-
     }
 }
 
 // MARK: - Conditional Conformances (Linear)
 
-extension Buffer.Linear: Copyable where Element: Copyable {}
+// CoW withdrawn (W2): the storage tier is unconditionally `~Copyable` (deinit oracle + explicit
+// `copy()`), so a `Storage` `S` is never `Copyable` — `Buffer.Linear` is move-only. The prior
+// conditional `Copyable where S: Copyable` could never fire and is removed.
 /// Sendable conformance for `Buffer.Linear`.
 ///
 /// ## Safety Invariant
 ///
-/// `Buffer.Linear` is `~Copyable` and owns `Storage.Heap`. Single ownership
+/// `Buffer.Linear` is `~Copyable` and owns its `Store.`Protocol`` storage. Single ownership
 /// enforced; cross-thread transfer is a move.
 ///
 /// ## Intended Use
@@ -121,9 +53,4 @@ extension Buffer.Linear: Copyable where Element: Copyable {}
 /// ## Non-Goals
 ///
 /// - Not a shared concurrent buffer; external synchronization required.
-extension Buffer.Linear: @unsafe @unchecked Sendable where Element: Sendable {}
-
-// Copyable suppressed per INV-INLINE-004a.
-// extension Buffer.Linear.Inline: Copyable where Element: Copyable {}
-// extension Buffer.Linear.Inline: Swift.Sequence where Element: Copyable {}
-extension Buffer.Linear.Inline: Sendable where Element: Sendable {}
+extension Buffer.Linear: @unsafe @unchecked Sendable where S: Store.`Protocol` & ~Copyable & Sendable {}

@@ -1,0 +1,8 @@
+# .github/metadata.yaml
+description: "The linear buffer discipline over the Buffer namespace — contiguous, count-tracked heap storage with front/back access and append/remove, in growable and bounded forms; supports ~Copyable elements."
+topics:
+  - primitives
+  - buffer
+homepage: "https://swift-institute.org"
+readme:
+  family: E

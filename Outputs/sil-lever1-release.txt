@@ -1,0 +1,58 @@
+// ============================================================================
+// SIL RECEIPT — buffer/storage dedup, LEVER 1 (pointer(at:) zero-witness) — 2026-05-25
+// ============================================================================
+//
+// Validates the Lever-1 claim: the storage-generic linear algorithm
+//   (`extension __StorageProtocol where Self: ~Copyable { linearAppend / ... }`
+//    in Storage.Protocol+Linear.swift)
+// specializes to ZERO witness-table dispatch on `pointer(at:)` when reached
+// concretely on the REAL heap leaf (Buffer.Linear<Int> over Storage<Int>.Heap),
+// in RELEASE, across a module boundary.
+//
+// Supersedes the "LEVER 1 — NOT VALIDATED / BLOCKED" note in sil-release.txt.
+// That blocker (production Storage.Heap could not conform to Storage.Protocol —
+// `capacity: Index.Count` vs inherited `ManagedBuffer.capacity: Int`) was resolved
+// by the value-type storage migration: the leaves now PROVIDE `capacity` and Heap
+// conforms to Storage.Protocol, so the generic core is exercised on the real shape.
+//
+// Command (release, cross-module, optimized -O):
+//   <Xcode>/Toolchains/XcodeDefault.xctoolchain/usr/bin/swiftc
+//     -emit-sil -O -target arm64-apple-macosx26.0
+//     -sdk <Xcode>/Platforms/MacOSX.platform/Developer/SDKs/MacOSX.sdk   (26.5)
+//     -I <pkg>/.build/arm64-apple-macosx/release/Modules
+//     -enable-experimental-feature SuppressedAssociatedTypes (+ Lifetimes,
+//       LifetimeDependence, BuiltinModule, RawLayout)
+//     -enable-upcoming-feature ExistentialAny (+ InternalImportsByDefault,
+//       MemberImportVisibility, NonisolatedNonsendingByDefault,
+//       InferIsolatedConformances, LifetimeDependence)
+//     "Sources/Buffer Protocol SIL Probe/main.swift"
+//
+//   SDK note: the .swiftmodule is built by `swift build` with the Xcode SDK (26.5).
+//   Emitting SIL with the CommandLineTools SDK (26.2) fails to load the module
+//   ("cannot load module ... built with SDK 'macosx26.5' when using 'macosx26.2'").
+//   Use the Xcode toolchain swiftc + the Xcode 26.5 SDK to match `swift build`.
+//
+// Toolchain: Apple Swift 6.3.2 (swiftlang-6.3.2.1.108 clang-2100.1.1.101)
+// Platform:  arm64-apple-macosx26.0
+//
+// Probe exercises Lever-1 via `buffer.append(1)` × 1024 on a heap Buffer.Linear<Int>:
+//   append (CoW-safe) -> Buffer.Linear.append static -> Storage<Int>.Heap.linearAppend
+//   (the storage-generic core) -> storage.pointer(at:).initialize.
+//
+// ── LEVER 1 (pointer(at:) from the storage-generic algorithm) ── VERDICT: PASS ──
+//
+//   witness_method on pointer(at:) / __StorageProtocol:                 0   <-- the gate
+//   total witness_method in the dump:                                   6  (3 SIL instructions)
+//     - ALL inside the UNUSED [noinline] generic template
+//       `bufferProtocolSum<B: __BufferProtocol>` (line 771), i.e. the Lever-2
+//       count/isEmpty/forEach getter+forEach witnesses; `main` never references it.
+//   specialized bufferProtocolSum that `main` calls (line 1107,
+//     `(Builtin.Int64, @guaranteed Storage<Int>.Heap.Buffer) -> Int`):  0 witness_method
+//   append path: FULLY INLINED into `main` as direct `index_addr` pointer arithmetic
+//     (11 index_addr, 0 class_method) — the `some Storage.Protocol` genericity of
+//     linearAppend cost nothing; no dynamic dispatch on the Heap backing class either.
+//
+//   Runtime (release, cross-module): `sum: 10240000` — CORRECT (unchanged from Lever-2 run).
+//
+// Receipt SIL dump: sil-lever1-release.sil (1215 lines).
+// ============================================================================
