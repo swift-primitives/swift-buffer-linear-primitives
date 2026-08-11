@@ -34,8 +34,11 @@ extension Buffer.Linear where S: ~Copyable {
 ///
 /// ## Safety Invariant
 ///
-/// `Buffer.Linear.Bounded` is `~Copyable`. Fixed-capacity linear buffer with
-/// single-owner semantics.
+/// Category B — ownership transfer. `Buffer.Linear.Bounded` is `~Copyable` and owns its
+/// `Store.`Protocol`` storage; the conformance requires that storage to be `Sendable`. Moving the
+/// buffer across an isolation boundary transfers the sole value that can reach the storage, so no
+/// independently usable alias remains in the source isolation domain. `@unchecked` removes the
+/// compiler's data-race prevention; it does not make shared access safe.
 ///
 /// ## Intended Use
 ///
@@ -44,4 +47,4 @@ extension Buffer.Linear where S: ~Copyable {
 /// ## Non-Goals
 ///
 /// - Not a shared concurrent buffer.
-extension Buffer.Linear.Bounded: @unsafe @unchecked Sendable where S: Store.`Protocol` & ~Copyable & Sendable {}
+extension Buffer.Linear.Bounded: @unchecked Sendable where S: Store.`Protocol` & ~Copyable & Sendable {}

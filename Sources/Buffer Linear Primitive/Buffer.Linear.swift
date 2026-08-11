@@ -43,8 +43,11 @@ extension Buffer where S: Store.`Protocol`, S: ~Copyable {
 ///
 /// ## Safety Invariant
 ///
-/// `Buffer.Linear` is `~Copyable` and owns its `Store.`Protocol`` storage. Single ownership
-/// enforced; cross-thread transfer is a move.
+/// Category B — ownership transfer. `Buffer.Linear` is `~Copyable` and owns its
+/// `Store.`Protocol`` storage; the conformance requires that storage to be `Sendable`. Moving the
+/// buffer across an isolation boundary transfers the sole value that can reach the storage, so no
+/// independently usable alias remains in the source isolation domain. `@unchecked` removes the
+/// compiler's data-race prevention; it does not make shared access safe.
 ///
 /// ## Intended Use
 ///
@@ -53,4 +56,4 @@ extension Buffer where S: Store.`Protocol`, S: ~Copyable {
 /// ## Non-Goals
 ///
 /// - Not a shared concurrent buffer; external synchronization required.
-extension Buffer.Linear: @unsafe @unchecked Sendable where S: Store.`Protocol` & ~Copyable & Sendable {}
+extension Buffer.Linear: @unchecked Sendable where S: Store.`Protocol` & ~Copyable & Sendable {}
